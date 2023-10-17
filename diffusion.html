@@ -28,7 +28,7 @@ If we successively start applying the noise kernel with sds \(\sigma_1 < \sigma_
 </p>
 
 \begin{equation}
-\theta^* = \underset{\arg\min}{\theta} \sum_{i=1}^N \sigma_i^2 \mathbb{E}_{p_{DATA}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x} | x)} [\|s_\theta(\tilde{x}, \sigma_i) - \nabla_{\tilde{x}} \log p_{\sigma_i}(\tilde{x} | x)\|_2^2]
+\theta^* = \underset{\theta}{\arg\min} \sum_{i=1}^N \sigma_i^2 \mathbb{E}_{p_{DATA}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x} | x)} [\|s_\theta(\tilde{x}, \sigma_i) - \nabla_{\tilde{x}} \log p_{\sigma_i}(\tilde{x} | x)\|_2^2]
 \end{equation}
 
 <p>
