@@ -9,13 +9,24 @@
 </head>
 
 <body>
-  <h2> Song et al</h2>
 
-  <h3>Background</h3>
+<h2> Song et al</h2>
+<h3>Background</h3>
 
-  <h4>SCORE MATCHING WITH LANGEVIN DYNAMICS (SMLD)</h4>
 
-  Given some original distribution $p_{DATA}(x)$. This distribution is perturbed ay applying a kernel
-  \(p_\sigma(\tilde{x} | x)\)
+<h4>SCORE MATCHING WITH LANGEVIN DYNAMICS (SMLD)</h4>
+<p>
+  Given some original distribution \(p_{DATA}(x)\). We perturb this by applying a kernel \(p_\sigma(\tilde{x} | x)\). Call the resulting distribution \(p_\sigma(\tilde{x})\).
+</p>
+
+<br/>
+<p>
+If we successively start applying the noise kernel with sds \(\sigma_1 < \sigma_2 < \ldots < \sigma_N\), where \(p_{\sigma_1} \approx p_{DATA}\) and \(p_{\sigma_N} \approx \mathcal{N}(0, \sigma_N^2)\), we seek  to obtain the original distribution \(p_{DATA}\) back from \(p_N\). This can be done by constructing a model \(s(\theta, \sigma_i)\) that, given a sample \(x\) and a noise level \(\sigma\), approximates the gradient of the log kernel (\(\nabla\log(p_\sigma (\tilde{x}|x))\)). So the objective function becomes
+
+$$
+\theta^* = \underset{\arg\min}{\theta} \sum_{i=1}^N \sigma_i^2 \mathbb{E}_{p_{DATA}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x} | x)} [\|s_\theta(\tilde{x}, \sigma_i) - \nabla_{\tilde{x}} \log p_{\sigma_i}(\tilde{x} | x)\|_2^2]
+$$
+</p>
+
 </body>
 </html>
