@@ -29,11 +29,11 @@ If we successively start applying the noise kernel with sds \(\sigma_1 < \sigma_
 </p>
 
 \begin{equation}
-\theta^* = \underset{\theta}{\arg\min} \sum_{i=1}^N \sigma_i^2 \mathbb{E}_{p_{DATA}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x} | x)} [\|s_\theta(\tilde{x}, \sigma_i) - \nabla_{\tilde{x}} \log p_{\sigma_i}(\tilde{x} | x)\|_2^2]
+\theta^* = \underset{\theta}{\arg\min} \sum_{i=1}^N \sigma_i^2 \mathbb{E}_{p_{DATA}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x} | x)} [\|s_\theta(\tilde{x}, \sigma_i) - \nabla_{\tilde{x}} \log p_{\sigma_i}(\tilde{x} | x)\|_2^2] \tag{1}\label{smld-theta}
 \end{equation}
 
 <p>
-  After the optimal \(s_\theta\) is obtained, we do the MCMC Langevin dynamics to obtain samples for each \(p_{\sigma_i}\).
+  After the optimal \(s_\theta\) is obtained (using \ref{smld-theta}), we do the MCMC Langevin dynamics to obtain samples for each \(p_{\sigma_i}\).
 </p>
 
 $$
