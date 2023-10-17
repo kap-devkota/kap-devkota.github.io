@@ -5,6 +5,10 @@
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script type="text/javascript" id="MathJax-script" async
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  window.MathJax = {
+    tex: {
+    tags: 'ams'
+  }
 </script>
 </head>
 
@@ -19,14 +23,21 @@
   Given some original distribution \(p_{DATA}(x)\). We perturb this by applying a kernel \(p_\sigma(\tilde{x} | x)\). Call the resulting distribution \(p_\sigma(\tilde{x})\).
 </p>
 
-<br/>
 <p>
 If we successively start applying the noise kernel with sds \(\sigma_1 < \sigma_2 < \ldots < \sigma_N\), where \(p_{\sigma_1} \approx p_{DATA}\) and \(p_{\sigma_N} \approx \mathcal{N}(0, \sigma_N^2)\), we seek  to obtain the original distribution \(p_{DATA}\) back from \(p_N\). This can be done by constructing a model \(s(\theta, \sigma_i)\) that, given a sample \(x\) and a noise level \(\sigma\), approximates the gradient of the log kernel (\(\nabla\log(p_\sigma (\tilde{x}|x))\)). So the objective function becomes
+</p>
+
+\begin{equation}
+\theta^* = \underset{\arg\min}{\theta} \sum_{i=1}^N \sigma_i^2 \mathbb{E}_{p_{DATA}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x} | x)} [\|s_\theta(\tilde{x}, \sigma_i) - \nabla_{\tilde{x}} \log p_{\sigma_i}(\tilde{x} | x)\|_2^2]
+\end{equation}
+
+<p>
+  After the optimal \(s_\theta\) is obtained, we do the MCMC Langevin dynamics to obtain samples for each \(p_{\sigma_i}\).
+</p>
 
 $$
-\theta^* = \underset{\arg\min}{\theta} \sum_{i=1}^N \sigma_i^2 \mathbb{E}_{p_{DATA}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x} | x)} [\|s_\theta(\tilde{x}, \sigma_i) - \nabla_{\tilde{x}} \log p_{\sigma_i}(\tilde{x} | x)\|_2^2]
+x_i^m = x_i^{m-1} + \epsilon_i s_{\theta^*}(x_i^{m-1}, \sigma_i) + \sqrt{2\epsilon_i}z_i^m,
 $$
-</p>
 
 </body>
 </html>
