@@ -18,5 +18,17 @@
 <h2> LEARNING LIKELIHOODS WITH CONDITIONAL NORMALIZING FLOWS </h2>
 <h3>Background</h3>
 
+  
+  <b>Standard NF:</b>
+  <p> 
+    Let $\mathcal{Y}$ and $\mathcal{Z}$ be two spaces of equal dimensions,
+    define a map $f_\phi : \mathcal{Y} \rightarrow \mathcal{Z}$. 
+
+    Given prior $p_\mathcal{Z}(z)$, we can infer 
+    $$
+      \int_{\Omega} dF_\mathcal{Z} = \int_{f_\phi^{-1}(\Omega)} dF_\mathcal{Y}
+    $$
+    for any $\Omega \in \mathcal{F}_Z$. 
+  </p>
 </body>
 </html>
