@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Paper Reviews - Condition Normalizing Flows </title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  window.MathJax = {
+    tex: {
+    tags: 'ams'
+    }
+  }
+</script>
+</head>
+
+<body>
+
+<h2>Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution (Aaron Lou, Chenlin Meng, Stefano Ermon)</h2>
+<p>
+Given a set of categories \({1, \ldots, N}\), let a random process \(X\) represent its evolution with time. At time \(t\), let \(p_t\in \mathbb{R}^N\) be the marginal distribution. The discrete diffusion equation governing its evolution is written as:
+</p>
+
+\begin{equation}
+  \frac{dp_t}{dt} = Q_tP_t \tag{1.1}
+\end{equation}
+
+This evolution can be achieved through the following transitional update equation:
+$$
+p(x_{t+\Delta t} = y | x_t =x) = \delta_{xy} + Q_t(y, x)\Delta t + O(\Delta t^2) \tag{1.2}
+$$
+As,
+\begin{align}
+ \sum_x p(x_{t+\Delta t} = y | x_t=x) p(x_t=x) &= p(x_t=y) + \Delta t \sum_x Q_t(y, x) p(x_t=x) + O(\Delta t^2) \\
+ p(x_{t+\Delta t}=y) - p(x_t=y) &= \Delta t \sum_x Q_t(y,x)p(x_t=x) + \text{higher order terms} \\
+ \text{As }\Delta t \rightarrow 0, \\
+ \therefore \frac{dp_t}{dt} &=  Q_t p_t \tag{1.3}
+\end{align}
+
+<h3> Finding the reverse process </h3>
+The process, and the corresponding diffusion matrix \(\tilde{Q}_t\), that reverses the evolution equation in (1.1), should satisfy the detailed balance condition. <br/>
+
+Let \(\tilde{p}_t = p_{T-t}\). Then, the transfer of mass from categories \(x\) to \(y\), where \(x, y \in \{1,\ldots N\}\) in the forward process should match the mass transfer from \(y\) to \(x\) in the reverse process. In other words:
+
+\begin{align}
+Q_{T-t}(y, x)p_{T-t}(x) = \tilde{Q}_t(x, y) \tilde{p}_t(y)
+\end{align}
+
+Then, the corresponding evolution equation:
+\begin{align}
+  \frac{d\tilde{p}_t}{dt} &= \tilde{Q}_t\tilde{p}_t \tag{1.4}\\
+  \text{Where}, \\
+  \tilde{Q}_t(x, y) &= Q_{T-t}(y, x) \frac{p_{T-t}(x)}{p_{T-t}(y)}
+\end{align}
+governs the time-reversal of the original forward process in (1.1)
+</body>
+</html>
