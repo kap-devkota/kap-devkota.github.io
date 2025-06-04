@@ -12,10 +12,12 @@
   }
 </script>
 </head>
-
 <body>
 
-<h2>Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution (Aaron Lou, Chenlin Meng, Stefano Ermon)</h2>
+<h1>Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution (Aaron Lou, Chenlin Meng, Stefano Ermon)</h1>
+
+<h2>Problem formulation</h2>
+<h3>Modeling the forward diffusion process</h3>
 <p>
 Given a set of categories \({1, \ldots, N}\), let a random process \(X\) represent its evolution with time. At time \(t\), let \(p_t\in \mathbb{R}^N\) be the marginal distribution. The discrete diffusion equation governing its evolution is written as:
 </p>
@@ -51,6 +53,12 @@ Then, the corresponding evolution equation:
   \text{Where}, \\
   \tilde{Q}_t(x, y) &= Q_{T-t}(y, x) \frac{p_{T-t}(x)}{p_{T-t}(y)}
 \end{align}
-governs the time-reversal of the original forward process in (1.1)
+governs the time-reversal of the original forward process in (1.1).
+
+
+<h2>Objective</h2>
+The goal here is, given the forward diffusion of the discrete process \(p_t\), characterized by the diffusion matrix \(Q_t\), predict the ratio \(\frac{p_t(x)}{p_t(y)}\), that governs the denoising of the original distribution. 
+
 </body>
+
 </html>
