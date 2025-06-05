@@ -115,4 +115,9 @@ One possible minima that brings (1.6) to 0 is when \(p(x) - p(y)/s_\theta(x)_y =
 \end{align}
 Where, \(Q_t\) replaces \(w_{xy}\) from (1.5) and intractable marginals are replaced with the tractable transition probability \(p_{t|0}\).
 
+<h2>Scalability considerations</h2>
+<p>
+If the token space \(\mathcal{N}\) or the context length \(L\) (i.e. where \(x_1x_2\ldots x_L, x_i \in \mathcal{N}\) forms the input space), the size of the transition matrix \(Q_t\) increases exponentially. 
+To make things more scalable, one tactic is to reject all trajectories that cause change in multiple sentence locations. 
+<p/>
 </html>
