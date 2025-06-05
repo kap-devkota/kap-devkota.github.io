@@ -102,7 +102,6 @@ The short proof of (1.5) is shown below
  \mathcal{L}_{se} &= \sum_{x}\sum_{y\neq x} w_{xy} (s_\theta(x)_y p(x) - p(y) \log s_\theta(x)_y ) + \text{Terms without} s_\theta(x)_y \\
 \nabla_{s_\theta(x)_y}\mathcal{L}_{se} &= \sum_x \sum_{y\neq x} w_{xy} (p(x) - p(y) / s_\theta(x)_y) \tag{1.6}
 \end{align}
-</body>
 
 One possible minima that brings (1.6) to 0 is when \(p(x) - p(y)/s_\theta(x)_y = 0, \forall x, y \in \mathcal{N}\).
 
@@ -115,9 +114,43 @@ One possible minima that brings (1.6) to 0 is when \(p(x) - p(y)/s_\theta(x)_y =
 \end{align}
 Where, \(Q_t\) replaces \(w_{xy}\) from (1.5) and intractable marginals are replaced with the tractable transition probability \(p_{t|0}\).
 
+
+Finally, after obtaining the \(s^*_\theta(x, t)_y\), the reverse process can now be written as:
+
+\begin{align} 
+\frac{dp^\theta_{T-t}}{dt} = \bar{Q}^\theta_{T-t} p^\theta_{T-t} \tag{1.8}\\ 
+\text{where},\\
+\bar{Q}^\theta_t(y, x) = \left\{ \begin{matrix}s_\theta(x, t)_y Q_t(x, y), & x \neq y \\
+-\sum_{z \neq x} \bar{Q}^\theta_t(z, y), & x = y
+\end{matrix} \right. \tag{1.9}
+\end{align}
+
+Given (1.8), (1.9), we can use the same tactics as in (1.2) to perform the denoising operation. 
+
 <h2>Scalability considerations</h2>
 <p>
 If the token space \(\mathcal{N}\) or the context length \(L\) (i.e. where \(x_1x_2\ldots x_L, x_i \in \mathcal{N}\) forms the input space), the size of the transition matrix \(Q_t\) increases exponentially. 
-To make things more scalable, one tactic is to reject all trajectories that cause change in multiple sentence locations. 
+To make things more scalable, one tactic is to reject all trajectories that cause change in multiple sentence locations. This will result in \(Q_t\) having more manageable total parameters \(N\times N \times L\).
 <p/>
+
+<p> 
+  Along with the massive reduction in the state space, limiting the hamming distance between \(X,Y \in \mathcal{N}^d\) to 1  also simplifies the score function \(s_\theta(x,t)_y\), as it is only expected to give scores for pairs \(X, Y\) which are same at all locations but one.
+</p>
+
+
+<h3>Alternate formulation??</h3>
+A question may arise about why we cannot simply use the closed-form solution? If \(Q_t=\sigma(t) Q\), then (1.1) can be written as
+\begin{align} 
+ p_t(x) - p_0(x) &= \exp\left(\int_{s=0}^{t}Q_s ds\right) & ,x \in \mathcal{N}^L \\
+                 &= \exp\left(Q\int_{s=0}^{t}\sigma(s) ds\right) \\
+                 &= \exp\left(Q\tilde{\sigma}(t)\right) & \text{where, } \tilde{\sigma}(t) = \int_{s=0}^{t} \sigma(s)ds
+\end{align}
+
+Then, \(p_t(x)/p_t(y)\) becomes
+\begin{align} 
+ \frac{p_t(x)}{p_t(y)} &=  \frac{p_0(x) + \exp (Q\tilde{\sigma}(t))}{p_0(y) + \exp (Q\tilde{\sigma}(t))}
+\end{align}
+
+As, we do not know the data distribution \(p_0(x)\) beforehand, even though we can sample from it, we cannot use this strategy to compute the ratio. 
+</body>
 </html>

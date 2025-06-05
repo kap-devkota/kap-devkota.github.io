@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Paper Review - LEARNING FROM PROTEIN STRUCTURE WITH
+    GEOMETRIC VECTOR PERCEPTRONS </title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  window.MathJax = {
+    tex: {
+    tags: 'ams'
+    }
+  }
+</script>
+</head>
+
+<body>
+    <h1>Paper Review - LEARNING FROM PROTEIN STRUCTURE WITH
+        GEOMETRIC VECTOR PERCEPTRONS</h1>
+        <h2> GVP algorithm</h2>
+    <p>Geometric Vector Perceptron is described by the following algorithm.</p>
+    <img src="gvp-algo.png"/>
+
+    Let us apply rotation \(R\) on the vector features. Then \(U=VR\). Then, moving along the steps of the GVP algorithm:
+    <ol>
+        <li>\(U_h = W_h V R\)</li>
+        <li>\(U_\mu = W_\mu U_h = W_\mu V_h R\)  </li>
+        <li>s_h  = \(\|W_\mu V_h R\|_2\). At each row, the norm becomes \(\sqrt{(W_\mu V_h)_i  RR^* (W_\mu V_h)^*_i}\). However, since \(R\) is unitary, \(RR^*=1\), making the norm invariant to rotation. </li>
+        <li>Same logic as 3 makes \(v_\mu\) invariant to rotation</li>
+        <li> Concatenation of two rotation invariant scalars is also invariant to rotation</li>
+        <li>All parameters \(W_m, s_{h+n}\) and \(b\) are scalars</li>
+        <li>Any function applied to an invariant scalar \(s_m\) is also invariant</li>
+        <li>A row \(i\) is multiplied by a constant \(c_i = \sigma^+(v_\mu)_i\). So, the \(i^{th}\) row of \(U' = \sigma^+(v_\mu)\odot (V_\mu R),\) which is \(c_i V_\mu R = (c_i V_\mu) R\). Thus, \(U'= V'R\) (i.e. \(U') is rotation-equivariant). </li>
+    </ol>
+
+    This proves that the output \(U'\) obtained after rotating \(V\) by \(R\) is equivariant, and the scalar output \(s'\) is invariant.
+
+</body>
+</html>
