@@ -19,7 +19,7 @@
 <h2>Problem formulation</h2>
 <h3>Modeling the forward diffusion process</h3>
 <p>
-Given a set of categories \({1, \ldots, N}\), let a random process \(X\) represent its evolution with time. At time \(t\), let \(p_t\in \mathbb{R}^N\) be the marginal distribution. The discrete diffusion equation governing its evolution is written as:
+Given a set of categories \(\mathcal{N} = \{1, \ldots, N\}\), let a random process \(X\) represent its evolution with time. At time \(t\), let \(p_t\in \mathbb{R}^N\) be the marginal distribution. The discrete diffusion equation governing its evolution is written as:
 </p>
 
 \begin{equation}
@@ -30,7 +30,8 @@ This evolution can be achieved through the following transitional update equatio
 $$
 p(x_{t+\Delta t} = y | x_t =x) = \delta_{xy} + Q_t(y, x)\Delta t + O(\Delta t^2) \tag{1.2}
 $$
-As,
+
+Marginalizing (1.2) will yeild the original evolution equation,
 \begin{align}
  \sum_x p(x_{t+\Delta t} = y | x_t=x) p(x_t=x) &= p(x_t=y) + \Delta t \sum_x Q_t(y, x) p(x_t=x) + O(\Delta t^2) \\
  p(x_{t+\Delta t}=y) - p(x_t=y) &= \Delta t \sum_x Q_t(y,x)p(x_t=x) + \text{higher order terms} \\
@@ -39,7 +40,10 @@ As,
 \end{align}
 
 <h3> Finding the reverse process </h3>
-The process, and the corresponding diffusion matrix \(\tilde{Q}_t\), that reverses the evolution equation in (1.1), should satisfy the detailed balance condition. <br/>
+<p>
+  The process, and the corresponding diffusion matrix \(\tilde{Q}_t\), that reverses the
+   evolution equation in (1.1), should satisfy the detailed balance condition. 
+</p>
 
 Let \(\tilde{p}_t = p_{T-t}\). Then, the transfer of mass from categories \(x\) to \(y\), where \(x, y \in \{1,\ldots N\}\) in the forward process should match the mass transfer from \(y\) to \(x\) in the reverse process. In other words:
 
@@ -47,18 +51,68 @@ Let \(\tilde{p}_t = p_{T-t}\). Then, the transfer of mass from categories \(x\) 
 Q_{T-t}(y, x)p_{T-t}(x) = \tilde{Q}_t(x, y) \tilde{p}_t(y)
 \end{align}
 
-Then, the corresponding evolution equation:
+Because, 
+<ol>
+  <li>
+    Given the probability space \((\omega, \mathcal{F}, \{\mathcal{F_t}\}_{0\lt t \lt T}, \mathbb{P})\). Let \(A\in \mathcal{F}_t\)
+    be the set of all trajectories that end up in time \(t\) at state \(x\)
+  </li>
+  <li>
+    From \(t\) to \(t+\Delta t\), let \(B \subset A \) denote the subset of the trajectories that end up at state \(y\). 
+    Their probability is \(\mathbb{P}(B)\).  
+  </li>
+  <li>
+    The claim here is that, in the reverse direction--with probability space \( (\omega', \mathcal{F}',\{\mathcal{F}'_t\}_{0 \lt t \lt T}, \mathbb{P}')\)--the measure of the set \(B'\), which contains all the trajectory that ends up at \(y\) at \(t\) and \(x\) at \(t+\Delta t\) should be exactly the same as \(\mathbb{P}(B)\). In that scenario, the measure of a set of forward trajectories should almost surely be equal to its complement in the reverse process.  
+  </li>
+</ol>
+
+
+Consequently, the reverse evolution equation becomes:
 \begin{align}
   \frac{d\tilde{p}_t}{dt} &= \tilde{Q}_t\tilde{p}_t \tag{1.4}\\
   \text{Where}, \\
   \tilde{Q}_t(x, y) &= Q_{T-t}(y, x) \frac{p_{T-t}(x)}{p_{T-t}(y)}
 \end{align}
-governs the time-reversal of the original forward process in (1.1).
+which governs the time-reversal of the original forward process in (1.1).
 
 
 <h2>Objective</h2>
-The goal here is, given the forward diffusion of the discrete process \(p_t\), characterized by the diffusion matrix \(Q_t\), predict the ratio \(\frac{p_t(x)}{p_t(y)}\), that governs the denoising of the original distribution. 
+<p>
+  The goal here is, given the forward diffusion of the discrete process \(p_t\), 
+  characterized by the diffusion matrix \(Q_t\), to predict the ratio \(\frac{p_t(x)}{p_t(y)}\), 
+  that governs the denoising of the original distribution. The direct computation of 
+  \(\frac{p_t(x)}{p_t(y)}\) is intractable, so we approximate it using our model \(s_\theta(x, y, t)\),
+  where
+  \begin{equation}
+    s_t(x, y) \approx \frac{p_t(x)}{p_t(y)}, \forall{x, y \in \mathcal{N}}
+  \end{equation}
+</p>
 
+<p>
+  This paper suggests one possible loss function called <strong>score entropy</strong> to approximate this ratio, which is defined as 
+  \begin{align}
+   \mathcal{L}_{se} = \mathbb{E}_{x\sim p}\left[
+      \sum_{y \neq x} w_{xy}\left(s_\theta(x)_y - \frac{p(y)}{p(x)} \log s_\theta(x)_y + K \left(\frac{p(x)}{p(y)}\right)\right)
+    \right] \tag{1.5}
+  \end{align}
+  The notation is all over the place, with the time component suddenly jettisoned from the score and marginal distributions. However, a cursory analysis shows that at the minima (after minimizing w.r.t \(s_\theta(x)_y\)), the resulting optimal \(s_\theta(x)_y\) should approach \(\frac{p_t(x)}{p_t(y)}\)
+</p>
+The short proof of (1.5) is shown below
+\begin{align} 
+ \mathcal{L}_{se} &= \sum_{x}\sum_{y\neq x} w_{xy} (s_\theta(x)_y p(x) - p(y) \log s_\theta(x)_y ) + \text{Terms without} s_\theta(x)_y \\
+\nabla_{s_\theta(x)_y}\mathcal{L}_{se} &= \sum_x \sum_{y\neq x} w_{xy} (p(x) - p(y) / s_\theta(x)_y) \tag{1.6}
+\end{align}
 </body>
+
+One possible minima that brings (1.6) to 0 is when \(p(x) - p(y)/s_\theta(x)_y = 0, \forall x, y \in \mathcal{N}\).
+
+<p>
+  The loss however still contains an intractable term, \(p_t(x)/p_t(y)\). They resolve this by formulating a loss they call diffusion weighted denoising score entropy which they define the following way:
+</p>
+
+\begin{align}
+ \mathcal{L}_{DWDSE} = \int_{0}^T \mathbb{E}_{x_t \sim p_{t|0}(.|x_0)} \left[\sum_{y\neq x} Q_t(x_t, y)\left( s_\theta(x_t, t)_y - \frac{p_{t|0}(y|x_0)}{p_{t|0}(x_t|x_0)} \log s_\theta(x_t, t)_y + K\left(\frac{p_{t|0}(y|x_0)}{p_{t|0}(x_t|x_0)}\right)\right)\right] dt \tag{1.7}
+\end{align}
+Where, \(Q_t\) replaces \(w_{xy}\) from (1.5) and intractable marginals are replaced with the tractable transition probability \(p_{t|0}\).
 
 </html>
