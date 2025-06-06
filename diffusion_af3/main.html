@@ -16,6 +16,29 @@
 <body>
 
 <h1> Alphafold-3 Diffusion </h1>
+<p>
+  AF3 performs diffusion through the <em>SampleDiffusion</em> module. The diffusion loop is shown below:
+</p>
+<img src="sample-diffusion.png"/>
 
+<h2>Analysis</h2>
+<ul>
+  <li> (1) is sampling the initial location randomly from noise. \(c_0\) seems to be the starting constant </li>
+  <li> (2) is using the <em>CentralRandomAugmentation</em> to randomly rotate and translate the initial noise.
+  <img src="central-random-augmentation.png"/>
+  <ol>
+    <li>(1) is ensuring that the noisy data is centered at origin.</li>
+    <li>(2) <em>UniformRandomRotation()</em> creates a random rotation matrix, (3) creates a random translation vector, (4,5) returns the final rotationally and translationally transformed vector.</li>
+  </ol>
+  </li>
+  <li>(4,5,6,7) is doing a weird additional inclusion of translational noise if the current noise-schedule is greater than some threshold \(\gamma_{min}\), which is by default 1.0.</li>
+  <li> (8) is doing the major brunt of the diffusion work, through the <em>DiffusionModule</em> module.</li>
+</ul>
+
+<p>Let us look at the <em>DiffusionModule</em> more carefully.</p>
+<img src="diffusion-module.png"/>
+<ul>
+  <li> </li>
+</ul>
 </body>
 </html>
