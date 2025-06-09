@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> SPAA </title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  window.MathJax = {
+    tex: {
+    tags: 'ams'
+    }
+  }
+</script>
+</head>
+<h1>Stochastic Processes and Applications</h1>
+
+<h2>2.3 Generator of markov process</h2>
+<p>
+Let \(P(x, t, \Gamma)\) be a probabilistic measure of all trajectories
+\(w \in \Omega, X_0(w)=x, X_t(w) \in \Gamma\). Then, the chapman-kolmogorov equation for markov processes, described by
+\begin{align}
+    P(x, t+s, \Gamma) &= \int_z P(x, t, dz) P(z, s, \Gamma)
+\end{align} 
+suggest that the linear operator \(P_t: \mathcal{C_b}(\mathbb{R}^d) \rightarrow L_1(\mathbb{R}^d)\), described by
+\begin{align} 
+    (P_tf)(x) = \int_z f(z) P(t, x, dz)
+\end{align}
+have a semigroup property.
+</p>
+
+<p>
+<strong>Proof:</strong> 
+\begin{align} 
+    (P_{t+s}f)(x) &= \int_z f(z) P(t+s, x, dz) \\
+                  &= \int_z\int_y f(z) P(t, x, dy) P(s, y, dz) \\
+                  &= \int_y (P_sf)(y) P(t, x, dy) \\
+                  &= (P_t \circ P_s f)(x) \tag{2.3.1}\label{ck}
+\end{align}
+</p>
+
+The generator of the semigroup described in \ref{ck} is given by 
+\begin{align}
+\mathcal{L} &=  \lim_{t\rightarrow 0} \frac{P_t-I}{t} \tag{2.3.2}\label{backgen}
+\end{align}
+
+Since
+\begin{align}
+ P_{t+h} - P_T &= h\mathcal{L} \\
+ \frac{d P_{t}}{dt} &= \mathcal{L} \\
+\therefore P_t &= \exp(t\mathcal{L})
+\end{align}
+
+<p>
+Given \(f\) as above. Let \(u(x, t) = (P_tf)(x)\). Then, \(u\) satisfies the equation
+\begin{align}
+\frac{\partial u}{\partial t} &= \mathcal{L}u \label{bk} \tag{2.3.3} \\ 
+u(x, 0) &= f(x)
+\end{align}
+which we refer to as the Kolmogorov backward equation
+</p>
+
+<p>
+For example, for 1d brownian motion, \( P(t, x, dy)=\frac{1}{\sqrt{2\pi t}} \exp\left(- \frac{|x-y|^2}{2t}\right)dy\). Then, 
+\begin{align} 
+ \mathcal{L}(f)(x) &= \lim_{t\rightarrow 0} \frac{(P_tf)(x) - f(x)}{t} \\
+ &= \lim_{t\rightarrow 0}\frac{\int_y f(y) P(t, x, dy) - f(x)}{t} \\
+ &= \lim_{t\rightarrow 0} \frac{\int_y [f(x) + (y-x)f'(x) + f''(x)(y-x)^2/2!  + \ldots]P(t, x, dy) - f(x)}{t} \\
+ &= f''(x)/2
+\end{align}
+
+Thus, for brownian motion, the kolmogorov backward equation is 
+\begin{align} 
+\frac{\partial u}{\partial t} = \frac{1}{2} u_{xx} \\
+\end{align}
+</p>
+
+<h3>Adjoint process</h3>
+<p>
+\(P_t\) acts on bounded continuous functions. Define a measure \(\mu\) and a corresponding functional \(F\) such that 
+\begin{align} 
+F(P_tf) &= \int_x (P_t f)(x) \mu(dx) \\
+&= \int_x f(x) (P_t^*\mu)(dx)
+\end{align}
+
+The adjoint operator \(P^*_t\) acting on a measure \(\mu\) also forms a semigroup, with the generator \(\mathcal{L}^*\), such that \(P^*_t = \exp(t\mathcal{L^*})\). We can view \(P^*_t\) as a pushforward operator on the original measure. Given a density \(p(t, x)\) such that \(\mu_t(dx) = (P_t^*\mu)(dx) = p(t, x) dx\), the forward Kolmogorov equation can be written as in \ref{fk}.
+\begin{align}
+\frac{\partial p}{\partial t} = \mathcal{L}^*(p), \label{fk} \tag{2.3.3} 
+\end{align}
+</p>
+
+<h3>Ergodicity of a Markov Process</h3>
+<p>
+Given a linear semigroup \(P^*_t\) acting on a measure \(\mu\), does there exist a unique measure \(\mu^*\) such that \(\mathcal{L^*}\mu^* = \mu^*\)? If such measures exist, the law of the random process remains invariant with time. 
+</p>
+
+<p>
+    This invariant measure \(\mu^*\) governs the long-range properties of a random process. In particular, when \(X_0 \sim \mu_0\) initially, with time, we have
+    \begin{align} 
+        \lim_{t\rightarrow \infty} P_t^*(\mu_0) = \mu
+    \end{align}
+    Similarly, the long-time average of an observable \(f\) also converges to the expectation with respect to the invariant measure. 
+    \begin{align}
+    \lim_{T\rightarrow \infty} \frac{1}{T} \int_0^T f(X_s)ds = \int f(x)\mu^*(dx) 
+    \end{align}
+</p>
+
+<h2>Forward and backward kolmogorov equations of a diffusion process</h2>
+
+<p>
+    Diffusion processes are markovian, without jumps. It should satisfy the following properties:
+</p>
+<ol>
+    <li>Continuity: The process should be continuous almost surely. 
+        \begin{align}
+            \int_{|x-y| > \epsilon} P(dy, t | x, s) = o(t-s) 
+        \end{align}
+        uniformly over \(s \leq t\)
+    </li>
+    <li> The process should have a drift coeff:
+        \begin{align}
+            \int_{|x-y| \leq \epsilon} (y-x) P(dy, t | x, s) = b(x, s) (t-s) + o(t-s) 
+        \end{align}
+    </li>
+    <li>
+        It should have a diffusion coeff:
+        \begin{align} 
+            \int_{|x-y| \leq \epsilon} (y-x)^2 P(dy, t| x,s) = g(x,s)(t-s) + o(t-s)
+        \end{align}
+    </li>
+</ol>
+
+
+<h3>Backward Kolmogorov equation</h3>
+
+<p> Define \(u(x, s)\) as: 
+    \begin{align}
+     u(x, s) = \int_z P(dz, t | x, s) f(z) 
+    \end{align}
+</p>
+
+The difference \(u(x, s) - u(x, s-h)\) becomes
+\begin{align} 
+    u(x, s-h) &=  \int_z f(z) P(dz, t|x, s-h) \\ 
+    &= \int_z f(z) P(dz, t| y, s) P(dy, s| x, s-h) \\
+    &= \int_y u(y, s) P(dy, s | x, s-h) \\
+    &= \int_y \left[u(x, s) + \frac{\partial u}{\partial x} (y-x) + \frac{1}{2}\frac{\partial^2 u}{\partial x^2} (y-x)^2 \right] P(dy, s|x, s-h) \\
+    &= u(x, s) + \frac{\partial u}{\partial x} b(x, s)(t-s) + \frac{1}{2}\frac{\partial^2 u}{\partial x^2} g(x, s)(t-s) + o(t-s) \\
+    \text{At } s \rightarrow t, \\
+    -\frac{\partial u}{\partial s} &= b\frac{\partial u}{\partial x} + g\frac{\partial^2 u}{\partial x^2} \tag{2.3.7} \label{bk1}
+\end{align}
+
+Additionally, as 
+\begin{align} 
+u(x, s) = \int_z p(z, t|x, s) f(z) dz
+\end{align}
+
+\ref{bk1} translates to
+\begin{align}
+ \int_z f(z)\left[\frac{\partial p(z, t|x, s)}{\partial s} + b\frac{\partial p(z, t|x, s)}{\partial x} + g\frac{\partial^2 p(z, t|x, s)}{\partial x^2}\right] dz &= 0 \\
+ \therefore \frac{\partial p(z, t|x, s)}{\partial s} + b\frac{\partial p(z, t|x, s)}{\partial x} + g\frac{\partial^2 p(z, t|x, s)}{\partial x^2} &= 0
+\end{align}
+
+
+<h3>Forward Kolmogorov equation</h3>
+Define \(v(x, s)\) as 
+\begin{align} 
+v(x, s+h) &= \int_y P(dy, s+h| x) f(y) \\
+&= \int_{y,z} P(dz, h|x)P(dy, s|z) f(y) = \int_z P(dz, h|x) v(z, s) \\
+&= \int_z P(dz, h|x) \left[v(x, s) + (z-x)\frac{\partial v}{\partial x} + \frac{1}{2} (z-x)^2 \frac{\partial^2 v}{\partial x^2}\right] \\
+\text{When } h \rightarrow 0 \\
+
+\frac{\partial v}{\partial t} &= \frac{\partial v}{\partial x}f +  \frac{\partial^2 v}{\partial^2 x}g 
+\end{align}
+
+</body>
+</html>
