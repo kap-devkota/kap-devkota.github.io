@@ -162,15 +162,38 @@ u(x, s) = \int_z p(z, t|x, s) f(z) dz
 
 
 <h3>Forward Kolmogorov equation</h3>
-Define \(v(x, s)\) as 
+<p>
+If we define \(v(x, s)\) as 
 \begin{align} 
-v(x, s+h) &= \int_y P(dy, s+h| x) f(y) \\
+v(x, s+h) &= \int_y P(dy, s+h| x) f(y) \\ 
 &= \int_{y,z} P(dz, h|x)P(dy, s|z) f(y) = \int_z P(dz, h|x) v(z, s) \\
 &= \int_z P(dz, h|x) \left[v(x, s) + (z-x)\frac{\partial v}{\partial x} + \frac{1}{2} (z-x)^2 \frac{\partial^2 v}{\partial x^2}\right] \\
 \text{When } h \rightarrow 0 \\
 
-\frac{\partial v}{\partial t} &= \frac{\partial v}{\partial x}f +  \frac{\partial^2 v}{\partial^2 x}g 
+\frac{\partial v}{\partial s} &= \frac{\partial v}{\partial x}b +  \frac{\partial^2 v}{\partial^2 x}g 
 \end{align}
+Now, expanding \(v\), we get 
+\begin{align}
+    \int_y  \frac{\partial p(y, s|x)}{\partial s}f(y) dy &= \int_y \left(b\frac{\partial p(y, s|x)}{\partial x} + g\frac{\partial^2 p(y,s|x)}{\partial x^2}\right)f(y)dy \\
+    \therefore \frac{\partial p(y, s|x)}{\partial s} &= b\frac{\partial p(y, s|x)}{\partial x} + g\frac{\partial^2 p(y,s|x)}{\partial x^2} \tag{2.3.8} \label{k2}
+\end{align}
+</p>
+This, however, describes the variation with respect to the starting point. To obtain forward Kolmogorov equation, which describes variation with respect to the time \(s\) and the value of the process at that \(s\), we do the following:
+
+
+<p>
+    \begin{align}
+    \int_y dy \frac{\partial p(y, s| x)}{\partial s} &= \lim_{h\rightarrow 0} \left(\int_y P(dy, s+h|x)f(y) - \int_y P(dy, s|x)f(y) \right) \\
+    &= \lim_{h\rightarrow 0} \left(\int_{y,z} dy\ dz\ p(y, h|z) p(z, s| x)f(y) -\int_y dy\ p(y,s|x) f(y) \right) \\
+    &= \lim_{h\rightarrow 0} \left(\int_{z} dz\ p(z,s|x) \int_y dy\ (p(y, s+h|z,s) (f(y) - f(z)) \right) \\
+    &= \lim_{h\rightarrow 0} \left(\int_{z} dz\ p(z,s|x) \int_y dy\ (p(y, s+h|z,s) \left((y-z)\frac{\partial f}{\partial z} + (y-z)^2\frac{\partial^2 f}{\partial z^2}\right) \right) \\
+    &= \int_{z} dz\ p(z,s|x)  \left(b(z, s)\frac{\partial f}{\partial z} + g(z, s)\frac{\partial^2 f}{\partial z^2}\right)  \\
+    \text{If } f \text{ has a compact support,} \\
+    &= \int_{z} dz\ f(z)\left(-\frac{\partial }{\partial z}(p(z,s|x) b(z, s)) + \frac{\partial^2 }{\partial z^2} (p(z, s|x)g(z,s))\right)  \\
+    \therefore \frac{\partial}{\partial s} p(x,s|z) &= -\frac{\partial }{\partial x}(p(x,s|z) b(x, s)) + \frac{\partial^2 }{\partial z^2} (p(x, s|z)g(x,s)) \tag{2.3.9} \ref{k3}
+    \end{align} 
+    \ref{k3} describes the forward kolmogorov equation. 
+</p>
 
 </body>
 </html>
