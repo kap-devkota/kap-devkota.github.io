@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Flow matching for generative modelling </title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      tags: 'ams',
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
+</head>
+
+<body>
+<h2>1. Problem description</h2>
+Describe a Random process $X$ with a probability density $p_t$. Let $v$ represent a <em>time-dependent vector field</em> that describes the trajectory of a flow $\phi$ such that
+\begin{align}
+ \frac{d}{dt}(\phi_t(x)) &= v_t(\phi_t(x)) \label{flow-cond1} \\ 
+ \phi_0(x) &= x \label{flow-cond2}
+ \end{align}
+
+ The flow conditions \ref{flow-cond1} and \ref{flow-cond2} describe the evolution of the transformation with time. 
+ Then, the probability $p_t$ is a pushforward operation $p_t = [\phi_t]_* p_0$, described as:
+ \begin{align}
+  P_t(M) &= P_0(\phi_t^{-1}(M)) \\
+  P_t(vol_{x}) &= p_t(x) vol_x & \forall t \in [0, 1]\\
+  P_0(\phi_t^{-1} vol_x) &= P_0\left[det\left( \frac{d \phi_t^{-1}}{dx}\right)_{\phi_t^{-1}(x)} vol_{\phi_t^{-1}(x)}\right] \\
+  &=  det\left( \frac{d \phi_t^{-1}}{dx}\right)_{\phi_t^{-1}(x)} p_0(\phi_t^{-1}(x)) vol_{\phi_t^{-1}(x)}
+ \end{align} 
+ Where $P_t$ is the probability measure, $p_t$ describes the density function and $vol_x$ the volume element at the point $x$.
+ Therefore, 
+ \begin{align}
+ p_t(x) &= [\phi_t]_* p_0 =  det\left( \frac{d \phi_t^{-1}}{dx}\right)_{\phi_t^{-1}(x)} p_0(\phi_t^{-1}(x))
+ \end{align}
+</body>
+</html>
