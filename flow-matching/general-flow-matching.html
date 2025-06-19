@@ -24,8 +24,9 @@
 </head>
 
 <body>
-<h2>1. Problem description</h2>
-Describe a Random process $X$ with a probability density $p_t$. Let $v$ represent a <em>time-dependent vector field</em> that describes the trajectory of a flow $\phi$ such that
+<h2>1. Introduction</h2>
+<p>
+Describe a Random process $X$ with a probability density $p_t$. Let $v$ represent a <em>time-dependent vector field</em> that describes the trajectory of a flow $\phi$, conditioned on time $t$ and starting point $x$, such that:
 \begin{align}
  \frac{d}{dt}(\phi_t(x)) &= v_t(\phi_t(x)) \label{flow-cond1} \\ 
  \phi_0(x) &= x \label{flow-cond2}
@@ -44,5 +45,30 @@ Describe a Random process $X$ with a probability density $p_t$. Let $v$ represen
  \begin{align}
  p_t(x) &= [\phi_t]_* p_0 =  det\left( \frac{d \phi_t^{-1}}{dx}\right)_{\phi_t^{-1}(x)} p_0(\phi_t^{-1}(x))
  \end{align}
+</p>
+
+<h3>1.1 Problem description</h3>
+<p>
+Given a distribution $q_1$, we want to construct a model that lets us sample uniformly from it. Assuming that the vector field $u_t$ that perturbs a simpler distribution (i.e. standard normal $\mathcal{N}(0,1)$) to $q_1$ is known at all points in the sample space, the evolution equation \ref{flow-cond1} can be used to sample points from $q_1$. If $u_t$ is not available at all points and time-steps, but enough samples are provided that adequately cover the overall domain space, we can fit a deep model $v_t$ that approximates $u_t$ using the following MSE loss:
+\begin{align}
+\mathcal{L}_{FM}(\theta) = \mathbb{E}_{t, p_t(x)} \|v_t(x) - u_t(x)\|^2 
+\end{align} 
+
+The issue here is that we do not have any prior knowledge of the ground truth $u_t$. An alternate construction is needed to resolve this issue. 
+</p>
+\ \mathbf{and}\  \phi_1^{-1}(x_1) \in vol_x
+<h3>1.2 Conditional flow matching</h3>
+It can be proven that 
+\begin{align}
+u_t(x) = \int u_t(x|x_1) \frac{p_t(x|x_1)q(x_1)}{p_t(x)} dx_1 
+\end{align}
+given the definitions:
+\begin{align} 
+ A: & \quad & \frac{d(\phi_t(|x_1))}{dt} &= u_t(\phi_t(|x_1)|x_1) \\ 
+ B: & \quad& \phi_1(|x_1)  &= x_1 \\
+ C: & \quad& p_t(x|x_1)vol_x &= P(\phi_t(|x_1) \in vol_x) \\
+ D: & \quad& \phi_t(x)  &= \int \phi_t(|x_1) P(dx_1\ , \phi_1(|x_1) = x)
+\end{align}
+In eq (D) above, we are marginalizing $\phi_t$ across all trajectories that, at time $t$, has value $x$. Since 
 </body>
 </html>
