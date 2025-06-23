@@ -37,13 +37,13 @@ Describe a Random process $X$ with a probability density $p_t$. Let $v$ represen
  \begin{align}
   P_t(M) &= P_0(\phi_t^{-1}(M)) \\
   P_t(vol_{x}) &= p_t(x) vol_x & \forall t \in [0, 1]\\
-  P_0(\phi_t^{-1} vol_x) &= P_0\left[det\left( \frac{d \phi_t^{-1}}{dx}\right)_{\phi_t^{-1}(x)} vol_{\phi_t^{-1}(x)}\right] \\
-  &=  det\left( \frac{d \phi_t^{-1}}{dx}\right)_{\phi_t^{-1}(x)} p_0(\phi_t^{-1}(x)) vol_{\phi_t^{-1}(x)}
+  P_0(\phi_t^{-1} vol_x) &= P_0\left[det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x} vol_{\phi_t^{-1}(x)}\right] \\
+  &=  det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x} p_0(\phi_t^{-1}(x)) vol_{\phi_t^{-1}(x)}
  \end{align} 
  Where $P_t$ is the probability measure, $p_t$ describes the density function and $vol_x$ the volume element at the point $x$.
  Therefore, 
  \begin{align}
- p_t(x) &= [\phi_t]_* p_0 =  det\left( \frac{d \phi_t^{-1}}{dx}\right)_{\phi_t^{-1}(x)} p_0(\phi_t^{-1}(x))
+ p_t(x) &= [\phi_t]_* p_0 =  det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x} p_0(\phi_t^{-1}(x)) \label{p_t:define}
  \end{align}
 </p>
 
@@ -56,19 +56,63 @@ Given a distribution $q_1$, we want to construct a model that lets us sample uni
 
 The issue here is that we do not have any prior knowledge of the ground truth $u_t$. An alternate construction is needed to resolve this issue. 
 </p>
-\ \mathbf{and}\  \phi_1^{-1}(x_1) \in vol_x
 <h3>1.2 Conditional flow matching</h3>
 It can be proven that 
 \begin{align}
 u_t(x) = \int u_t(x|x_1) \frac{p_t(x|x_1)q(x_1)}{p_t(x)} dx_1 
 \end{align}
-given the definitions:
-\begin{align} 
- A: & \quad & \frac{d(\phi_t(|x_1))}{dt} &= u_t(\phi_t(|x_1)|x_1) \\ 
- B: & \quad& \phi_1(|x_1)  &= x_1 \\
- C: & \quad& p_t(x|x_1)vol_x &= P(\phi_t(|x_1) \in vol_x) \\
- D: & \quad& \phi_t(x)  &= \int \phi_t(|x_1) P(dx_1\ , \phi_1(|x_1) = x)
+This requires proving the following lemma:
+\begin{align}
+   \frac{d(p_t)}{dt} &= \nabla\cdot (u_t p_t)
 \end{align}
-In eq (D) above, we are marginalizing $\phi_t$ across all trajectories that, at time $t$, has value $x$. Since 
+
+<p>
+<b>Proof:</b > From \ref{p_t:define}, 
+    \begin{align}
+     \frac{dp_t}{dt} &=  \frac{d}{dt} \left(det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x} p_0(\phi_t^{-1}(x))\right) \nonumber \\
+                &= \frac{d}{dt}\left(det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x}\right) p_0(\phi_t^{-1}(x)) + det\left(\frac{d \phi_t^{-1}}{dx}\right)_{x} \frac{d}{dt} (p_0(\phi_t^{-1}(x))) := A+ B \label{11}
+    \end{align}
+
+    We know the following identities:
+    \begin{align} 
+    \text{Differentiation of determinants} \nonumber \\ 
+    \frac{d}{dt} (det\ A(t))&= det\ A(t) Tr\left(A^{-1} \frac{d}{dt} (A(t))\right) \label{id:ddet}\\
+    \text{Inversion of Jacobians} \nonumber \\
+    \frac{\partial}{d x} (\phi_t \cdot \phi^{-1}_t(x)) &= I  \nonumber \\
+    \frac{d \phi_t}{dx}_{\phi_t^{-1}(x)} \frac{d\phi_t^{-1}}{dx}_x &= I \nonumber \\
+    \therefore \frac{d\phi_t^{-1}}{dx}_x &=  \left(\frac{d \phi_t}{dx}_{\phi_t^{-1}(x)}\right)^{-1} \label{id:invjac} \\
+    \text{Forward and backward processes} \nonumber\\
+    \frac{d}{dt} (\phi_t \cdot \phi^{-1}_t(x)) &= 0 \nonumber\\
+    \frac{d\phi_t}{dt}_{\phi_t^{-1}(x)} + { {\frac{d \phi_t}{dx}}}_{\phi_t^{-1}(x)} \frac{d \phi_t^{-1}}{dt}_x &= 0 \nonumber\\
+    \therefore  \frac{d \phi_t^{-1}}{dt}_x &= -\left({{\frac{d \phi_t}{dx}}}_{\phi_t^{-1}(x)}\right)^{-1}\frac{d\phi_t}{dt}_{\phi_t^{-1}(x)} \label{id:fbp}
+    \end{align}
+</p>
+Back to \ref{11}: 
+\begin{align} 
+A &= -det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x} Tr\left( \frac{d\phi_t}{dx}_{\phi_t^{-1}(x)} \left[\left(\frac{d\phi_t}{dx}_{\phi_t^{-1}(x)}\right)^{-1} \frac{d}{dx}\left(\frac{d\phi_t}{dt}\right)_{\phi_t^{-1}(x)} + \frac{d}{dx}\left(\frac{d \phi_t^{-1}}{dx}_x \right) \frac{d\phi_t}{dt}_{\phi_t^{-1}(t)}\right]\right) p_0(\phi_t^{-1}(x))  \nonumber \\
+&= -p_t(x) Tr\left(Du_t\right) - A' = -p_t(x) \nabla \cdot u_t - A' \label{11:a}  \\
+\text{Where,} \\
+A' &= det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x}Tr\left(\frac{d\phi_t}{dx}_{\phi_t^{-1}(x)}  \frac{d}{dx}\left(\frac{d \phi_t^{-1}}{dx}_x \right) \frac{d\phi_t}{dt}_{\phi_t^{-1}(t)}\right)\\
+B &= \frac{d}{dt}(p_0(\phi_t^{-1}(x)))det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x} \nonumber \\
+&= -\left({\nabla p_0}_{\phi_t^{-1}(x)}    \cdot \left(\left( \frac{d\phi_t}{dx}_{\phi^{-1}(x)} \right)^{-1} u_t\right)   \right) det\left( \frac{d \phi_t^{-1}}{dx} 
+\right)_{x} \\
+&= - \left(\nabla_x (p_0(\phi_t^{-1}(x)))  \cdot u_t\right)  det\left( \frac{d \phi_t^{-1}}{dx} 
+\right)_{x} \nonumber \\
+&= -\nabla_x p_t \cdot u_t - p_0(\phi_t^{-1}(x)) \nabla_x \left(det\left( \frac{d \phi_t^{-1}}{dx}\right)_{x}\right) \cdot u_t \nonumber  \\
+&= -\nabla_x p_t \cdot u_t + A' \label{11:b} \\
+\therefore \frac{dp}{dt} &= -\nabla\cdot (p_tu_t) & \text{From \ref{11:a} and \ref{11:b}}
+\end{align}
+
+Now, assuming that $u_t(\cdot | x_1)$ generates $p_t(\cdot | x_1)$,   $u_t(\cdot | x_1)$ should satisfy
+\begin{align}
+ \frac{dp_t(x | x_1)}{dt} &= -\nabla \cdot (p_t(x|x_1)u_t(x|x_1)) \label{cond:generate} \\
+\end{align}
+And, as $p_t(x) = \int_{x_1} p_t(x|x_1) q(x_1) dx_1$, $\frac{d p_t}{dt}$ becomes
+\begin{align}
+\frac{d p_t}{dt} &= \int_x q(x_1) \frac{dp_t(x|x_1)}{dt} dx_1 \nonumber \\
+ -\nabla \cdot (p_t u_t) &= -\nabla \cdot \left(\int_x q(x_1)p_t(x|x_1)dx_1 u_t(x|x_1)\right) \nonumber\\
+ \therefore u_t(x) = \frac{1}{p_t(x)}\int_{x_1} u_t(x|x_1) q(x_1) p_t(x|x_1) dx_1  
+\end{align} 
 </body>
+
 </html>
