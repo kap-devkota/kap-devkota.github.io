@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Flow matching for generative modelling </title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      tags: 'ams',
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
+</head>
+<body>
+    <h2>
+        Model convergence
+    </h2>
+
+    <ol>
+        <li> Two contexts $z_L$ and $z_H$ are allowed to converge to a steady state value. </li>
+        <li> Suppose 
+            \begin{align}
+                z_H^* = \mathcal{F}(z_H^*| \theta)  
+            \end{align}
+            represent the steady state condition, the goal being to update $z_H^*$ when $\theta$ is being updated.
+        </li>
+        <li> Implicit function theorem states that, if $F: \mathbb{R}^{m+n} \rightarrow \mathbb{R}^{m}$ such that
+            \begin{align}
+                F(\mathbf{x}, \mathbf{y}) = \mathbf{0} \\
+                \frac{\partial F}{\partial \mathbf{y}} \text{ is invertible}  \\
+                \text{Then, } \forall \mathbf{x'} \in \text{neighborhood } U \text{ of x}, \exists g \text{ s.t. } \nonumber \\
+                F(\mathbf{x'}, g(\mathbf{x'})) = \mathbf{0} \label{eq4}
+            \end{align}
+        </li>
+
+        <li> Applying this to the problem above, find new $\tilde{z}_H^*$ on updated $\theta \rightarrow \tilde{\theta}$ such that  
+                $\tilde{z}_H^* - \mathcal{F}(\tilde{z}_H^* | \tilde{\theta}) = 0$
+        </li>
+
+        <li> Equation \ref{eq4} also indicates that
+
+            \begin{align}
+                \frac{\partial{(z_H - \mathcal{F}(z_H|\theta))}}{\partial z_H} d(z_H) + \frac{\partial{(z_H - \mathcal{F}(z_H|\theta))}}{\partial \theta} d(\theta) &= 0 \\
+                \left(I - \frac{\partial F}{\partial z}\right) \frac{dz_H}{d\theta} &= \frac{\partial \mathcal{F}(z_H|\theta)}{\partial \theta}    \\
+                \therefore \frac{d z_H}{d_\theta} &= \left(I - \frac{\partial F}{\partial z}\right)^{-1} \frac{\partial \mathcal{F}(z_H|\theta)}{\partial \theta}
+            \end{align}
+        </li>
+    </ol>
+</body>
+</html>

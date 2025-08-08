@@ -13,6 +13,7 @@
 </script>
 </head>
 
+<body>
 <strong>Important Vector Field Proofs</strong>
 <div>
 <h2>1. General Tensor Properties and Lie Derivatives</h2>
@@ -100,10 +101,78 @@ Where \(\nabla f\) is the gradient of \(f\):
 \lim_{t\rightarrow 0} \frac{F_{t}(p) - p}{t} = X_{p}  
 \end{align}
 </p>
-
 </div>
 
 
-<body>
+<p> 
+\begin{align}
+  Hess(f)(X, Y) &= \frac{1}{2}(L_{\nabla f} g)(X, Y) \\
+  &= \frac{1}{2}(L_{\nabla f} (g(X, Y)) - g(L_{\nabla f}(X), Y) - g(X, L_{\nabla f}(Y))) \\
+  &= \frac{1}{2}(g(\nabla_{\nabla f}X, Y) + g(X, \nabla_{\nabla f}Y) - g(L_{\nabla f}(X), Y) - g(X, L_{\nabla f}(Y))) \\
+  &= \frac{1}{2}(g(\nabla_X \nabla f, Y) + g(X, \nabla_Y \nabla f)) \tag{B}\\
+  &= \frac{1}{2} (D_X(Y(f)) + D_Y(X(f)) - (\nabla_XY)(f) - (\nabla_YX)(f)) \\
+  &= \frac{1}{2} (X(Y(f)) + Y(X(f))  - (\nabla_X Y)(f) - (\nabla_XY(f) + Y(X(f)) - X(Y(f)))) \\
+  &= X(Y(f)) - (\nabla_X Y)(f)
+\end{align}
+
+(B) can also be written as 
+\begin{align}
+g(\nabla_X \nabla f, Y)  - g(X, \nabla_Y \nabla f)&= D_X(Y(f)) - D_Y(X(f)) - g(\nabla f, \nabla_X Y) + g(\nabla f, \nabla_Y X) \\
+&=  g([X, Y], \nabla f) - g(\nabla_XY, \nabla f) + g(\nabla_YX, \nabla f) \\
+&= 0 
+\end{align}
+</p>
+
+<h3>Reimannian curvature tensor</h3>
+\begin{align}
+R(X, Y)Z = \nabla_X\nabla_Y Z - \nabla_Y \nabla_X Z - \nabla_{[X, Y]}Z 
+\end{align}
+Curvature tensor can be represented as 
+\begin{align}
+{R_{ij}}^l_{\ k} &= \partial_i \Gamma^{l}_{jk} - \partial_j \Gamma^{l}_{ik} + \Gamma_{jk}^s\Gamma_{is}^l - \Gamma_{ik}^s
+\Gamma_{js}^l \\
+R_{ijkl} &= R_{ks} {R_{ij}}^{s}_{\ l}
+\end{align}
+
+Proofs:
+
+<h3>Symmetry</h3>
+\begin{align} 
+1.\quad R_{ijkl} &= -R_{jikl} & \text{Self evident} \\ 
+2.\quad R_{ijkl} &= -R_{ijlk} \\
+ R_{ijkl} &= (\nabla_{e_i} \nabla_{e_j} e_k - \nabla_{e_j} \nabla_{e_i} e_k, e_l) \\
+ &= \partial_i \partial_j (g(e_k, e_l)) - \partial_j \partial_i (g(e_k, e_l)) - (e_k, \nabla_{e_i} \nabla_{e_j}e_l -\nabla_{e_j} \nabla_{e_i} e_l) \\
+ &= -R_{ijlk}\\
+3.\quad R_{ijkl} &= R_{klij} \\
+ R_{ijkl} &= (\nabla_{e_i} \nabla_{e_k} e_j - \nabla_{e_j} \nabla_{e_k} e_i, e_l) \\
+ &= (\nabla_{e_k} e_i, \nabla_{e_l} e_j) - (\nabla_{e_k} e_j, \nabla_{e_l} e_i) + \partial_i (g(\nabla_{e_k} e_j, e_l)) - \partial_j(g(\nabla_{e_k} e_i, e_l)) \\
+ &= -(\nabla_l\nabla_k e_i, e_j) + (\nabla_k \nabla_l e_i, e_j) + [\partial_i(g(\nabla_k e_j, e_l)) - \partial_j(g(\nabla_k e_i, e_l))  \\
+ &\quad - \partial_k(g(\nabla_i e_l, e_j)) + \partial_l(g(\nabla_k e_i, e_j))] \\
+ &= R_{klij} + 0 & \text{Last four terms sum to 0}\\  
+\end{align}
+
+<h3>Bianchi identity</h3>
+\begin{align}
+\text{First Bianchi Identity:}
+\quad S := \quad R_{ijkl} + R_{jkil} + R_{kijl} &= 0 \\
+R_{ijkl} &= (\partial_i \Gamma_{jl}^k - \partial_j \Gamma_{il}^k) & \text{normal coord.} \\ 
+         &= \frac{1}{2}(\partial_i\partial_j g_{kl} + \partial_i\partial_l g_{kj} - \partial_i \partial_k g_{lj}) \\
+         &\quad - \frac{1}{2}(\partial_j \partial_i g_{lk} + \partial_j \partial_l g_{kl} - \partial_j \partial_k g_{il})
+\end{align}
+Expanding \(R_{jkil}, R_{kijl}\) and summing them will return 0.
+
+\begin{align}
+\text{Second Bianchi Identity:}\quad  
+R_{ijkl,h} + R_{ijlh,k} + R_{ijhk,l} &= 0 \\
+\text{In normal coordinates:} \\
+R_{ijkl,h} &= \frac{1}{2} (\partial_h\partial_i\partial_l g_{kj} - \partial_h \partial_i\partial_k g_{lj}) \\ 
+&\quad - \frac{1}{2} (\partial_h \partial_j \partial_i g_{kl} - \partial_h \partial_j \partial_k g_{il} )\\
+R_{ijlh,k} &= \frac{1}{2} (\partial_k\partial_i\partial_h g_{lj} - \partial_k \partial_i\partial_l g_{hj}) \\ 
+&\quad - \frac{1}{2} (\partial_k \partial_j \partial_i g_{lh} - \partial_k \partial_j \partial_l g_{ih} )\\
+R_{ijhk,l} &= \frac{1}{2} (\partial_l\partial_i\partial_k g_{hj} - \partial_l \partial_i\partial_h g_{kj}) \\ 
+&\quad - \frac{1}{2} (\partial_l \partial_j \partial_i g_{hk} - \partial_l \partial_j \partial_h g_{ik} )
+
+\end{align}
+
 </body>
 </html>
