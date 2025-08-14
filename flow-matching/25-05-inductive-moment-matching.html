@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Flow matching for generative modelling </title>
+    <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    window.MathJax = {
+        tex: {
+        tags: 'ams',
+        inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+        displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+        },
+        options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+
+    <style>
+        body {
+            counter-reset: heading;
+        } 
+
+        h2:before {
+            counter-increment: heading;
+            content: counter(heading) " ";
+            counter-reset: subheading;
+        }
+
+        h3:before {
+            content: counter(heading) "." counter(subheading) " ";
+            counter-increment: subheading;
+        }
+    </style>
+
+    <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</head>
+<body>
+<h1> Inductive moment matching by Zhou et al</h1>
+
+<h2>
+    Problem statement
+</h2>
+
+</body>
+</html>

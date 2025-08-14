@@ -20,16 +20,38 @@
 <script type="text/javascript" id="MathJax-script" async
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
 </script>
-
 </head>
 <body>
 <h1>Paper: Metric flow matching for smooth interpolations on the data manifold</h1>
 
-<h2> Metric Learning </h2>
+<h3> Self consistent interpolants </h3>
+<p>
+Given $s, t \in [0, 1]$, a self consistent interpolant $q_{s|t}(x_s|x, x_t)$ is markovian with respect to the 
+second term. I.e. 
+\begin{align} 
+ q_{s|t} (x_s|x, x_t) = \int q_{s|t}(x_s|x, x_r) q_{r|t}(x_r|x, x_t) dr
+\end{align}
+</p>
 
 <p>
-    
+<h3>Constructing a sampler from this self-consistent interpolant</h3>    
+Given this self consistent interpolant, marginals can be computed the following way
+\begin{align} 
+q_s(x_s) = \int\int q_{s|t}(x_s|x, x_t) q_t(x|x_t) q_t(x_t) dx_t dx \label{eq:marginal}
+\end{align}
 </p>
+The $q_t(x|x_t)$ is replaced by the Inductive Momemt Matching model such that \ref{eq:marginal} becomes
+\begin{align} 
+p_{s|t}^\theta(x_s) = \int\int q_{s|t}(x_s|x, x_t) p^\theta_{s|t}(x|x_t) q_t(x_t) dx_t dx 
+\end{align}
+
+This approach tries to find a sample for $x$ in two steps given $x_t$.
+
+<ol>
+  <li>Given $x_t$, sample $\hat{x} \sim p^{\theta}_{s|t}(x_t)$, given $s\lt q$</li>
+  <li> Compute $\hat{x}_s$ as $\hat{x}_s \sim q_{s|t}(x_s|\hat{x}, x_t)$.</li>
+  <li>Then, obtain $x$ as $x \sim p^{\theta}_{0|s}(x|\hat{x}_s)$</li>
+</ol>
 
 </body>
 </html>

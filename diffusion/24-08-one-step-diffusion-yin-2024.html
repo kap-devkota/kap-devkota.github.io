@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Flow matching for generative modelling </title>
+    <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    window.MathJax = {
+        tex: {
+        tags: 'ams',
+        inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+        displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+        },
+        options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+
+    <style>
+        body {
+            counter-reset: heading;
+        } 
+
+        h2:before {
+            counter-increment: heading;
+            content: counter(heading) " ";
+            counter-reset: subheading;
+        }
+
+        h3:before {
+            content: counter(heading) "." counter(subheading) " ";
+            counter-increment: subheading;
+        }
+    </style>
+
+    <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</head>
+    <body>
+        <h1>One step diffusion with distribution matching distillation by Yin et. al.</h1>
+        <h2>Problem statement</h2>
+        <ol>
+            <li>One step denoising still a challenge.</li>
+            <li>This method attempts at it using a distribution matching + distillation approach</li>
+        </ol>
+
+        <h2>Methodology</h2>
+        <ol>
+            <li>
+                Construct a one-step denoiser model $G_\theta$ conditioned only on the noise data. Given 
+                a noise $z \sim \mathcal{N}(0, 1)$, the fake generated data $x = G_\theta(z)$.
+            </li>     
+            <li>
+                First loss: Regression. Precompute pairs $\{(z^{(i)}, y^{(i)})\}$ by denoising $z^{(i)}$ using the 
+                diffusion model $\mu_{base}$.
+                \begin{align} 
+                 \mathcal{L}_{reg}(\theta) = \mathbb{E}_{(y,z) \sim \mathcal{D}} \|y - G_\theta(z)\|_2^2
+                \end{align}
+            </li>
+            <li>
+                Second loss: Diffusion. 
+                \begin{align}
+                 KL(p_{fake} || p_{real}) &= \mathbb{E}_{z\sim \mathcal{N}(0,1), x=G_\theta(z)} \left[ \log\left(\frac{p_{fake}(x)}{p_{real}(x)}\right)\right]
+                \end{align}
+                Since only the gradient is needed here
+                <ol>
+                   <li>compute the gradient as: 
+                    \begin{align} 
+                        D_{diff} = \nabla_\theta KL(p_{fake} || p_{real}) &=  \mathbb{E}_{z\sim \mathcal{N}(0,1), x=G_\theta(z)} \left[ \nabla_x\log p_{fake}(x) - \nabla_x\log p_{real}(x) \right] \frac{d G_\theta(z)}{d\theta} \label{eq:1}
+                    \end{align}
+                    </li> 
+                     <li>But the formulation in \ref{eq:1} is untractable. So, the key insight is; $s(x) = \nabla_x \log p(x)$ is pointing at the mode of the distribution. 
+                        If, instead of computing $s_{fake}(x)$ and $s_{real}(x)$ we noise the fake output $x$ upto time $t$ to produce $s_{fake}(x_t, t), s_{true}(x_t, t)$ instead, the problem is tractable. 
+                        Since, given $\alpha_t, \sigma_t$ determined by the noising schedule
+                        \begin{align} 
+                            q_t(x_t|x) = \mathcal{N}(x_t|\alpha_t x, \sigma_t)
+                        \end{align} 
+                        Thus, provided a fixed, fully trained diffusion model and a diffusion model trained only on fake data:
+                        \begin{align} 
+                            s_{true}(x_t, t) = \frac{\alpha_t \mu_{real}(x_t, t) - x_t}{\sigma_t^2} \\
+                            s_{fake}(x_t, t) = \frac{\alpha_t \mu_{fake}^{\sigma}(x_t, t) - x_t}{\sigma_t^2}
+                        \end{align}
+                        Then 
+                        \begin{align}
+                        D_{diff}(\theta) = \mathbb{E}_{z\sim \mathcal{N}(0,1), x=G_\theta(z), x_t \in q_t(x_t|x)} \left[(s_{fake}(x_t, t) - s_{true}(x_t, t))\frac{d G_\theta(x)}{d\theta}\right]
+                        \end{align}
+                    </li>
+                    <li> Using the diffusion gradient and the gradient from the regression loss, we train the model $G_\theta$</li>
+                </ol>
+                <li>The fake denoiser $\mu_{fake}^{\phi}(x,t)$ is trained using the standard denoising objective, however it is trained on the fake data $x=G_\theta(z), z\in \mathcal{N}(0,1)$. </li>
+                </li>
+        </ol>
+    </body>
+</html>
