@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title> Paper Reviews </title>
+<title> Flow matching for generative modelling </title>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+
+<script>
   window.MathJax = {
     tex: {
-    tags: 'ams'
+      tags: 'ams',
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
     }
-  }
+  };
 </script>
-</head>
 
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
+</head>
 <body>
 
 <h2> Song et al</h2>
@@ -39,6 +48,22 @@ If we successively start applying the noise kernel with sds \(\sigma_1 < \sigma_
 $$
 x_i^m = x_i^{m-1} + \epsilon_i s_{\theta^*}(x_i^{m-1}, \sigma_i) + \sqrt{2\epsilon_i}z_i^m,
 $$
+
+
+<h2>https://arxiv.org/pdf/2006.11239 Equation 3</h2>
+To prove:
+\begin{align} 
+  \mathbb{E}\left[-\log p_\theta(\mathbf{x}_0)\right] \leq \mathbb{E}_q\left[ -\log \frac{p_\theta(\mathbf{x}_{0:T})}{q(\mathbf{x}_{1:T}|\mathbf{x}_0)} \right]
+\end{align}
+<br/>
+<em>Proof</em>:
+\begin{align}
+\mathbb{E}\left[-\log p_\theta(\mathbf{x}_0)\right] &= \mathbb{E}\left[-\log \left(\int p_\theta(\mathbf{x}_0)p_\theta(\mathbf{x}_{1:T}|\mathbf{x}_0) d\mathbf{x}_{1:T}\right)\right] \\
+&= \mathbb{E}\left[-\log \left(\int p_\theta(\mathbf{x}_{0:T})\frac{q(\mathbf{x}_{1:T}|\mathbf{x}_0)}{q(\mathbf{x}_{1:T}|\mathbf{x}_0)} d\mathbf{x}_{1:T}\right)\right] \\
+&\leq -\int_{\mathbf{x}_{1:T}} \mathbb{E} \left[ -\log \left(\frac{p_\theta(\bf{x}_{0:T})}{q(\bf{x}_{1:T}|\bf{x}_0)}\right)\right]q(\mathbf{x}_{1:T}|\mathbf{x}_0) d\bf{x}_{1:T} & \text{Jensen's Inequality}\\
+& \leq \mathbb{E}_q\left[ -\log \frac{p_\theta(\mathbf{x}_{0:T})}{q(\mathbf{x}_{1:T}|\mathbf{x}_0)} \right]
+\end{align}
+
 
 </body>
 </html>
