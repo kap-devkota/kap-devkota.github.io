@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> FLOW-BASED FRAGMENT IDENTIFICATION VIA BIND-
+        ING SITE-SPECIFIC LATENT REPRESENTATIONS</title>
+    <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    window.MathJax = {
+        tex: {
+        tags: 'ams',
+        inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+        displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+        },
+        options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+
+    <style>
+        body {
+            counter-reset: heading;
+        } 
+
+        h2:before {
+            counter-increment: heading;
+            content: counter(heading) " ";
+            counter-reset: subheading;
+        }
+
+        h3:before {
+            content: counter(heading) "." counter(subheading) " ";
+            counter-increment: subheading;
+        }
+    </style>
+
+    <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</head>
+<body>
+<h1> FLOW-BASED FRAGMENT IDENTIFICATION VIA BIND-
+    ING SITE-SPECIFIC LATENT REPRESENTATIONS by Neeser et al</h1>
+
+<h2>
+    Highlights
+</h2>
+<ol>
+    <li>Describes a generative framework for structure-based fragment identification called LatentFrag.</li>
+    <li>A protein-fragment encoder that is trained contrastively, where the fragment and the surface points are placed in the same latent space.</li>
+</ol>
+
+<h2>Methodology</h2>
+<strong>Protein encoding</strong>
+<ol>
+    <li>Similar to dMaSIF but with smaller receptive field $r$, higher embedding dimension and surface computation as in original MaSIF. </li>
+    <li> Features: electrostatics, hydrogen bond donors/acceptors, hydropathy</li>
+    <li> Model Gainza et al. (2020)</li>
+</ol>
+
+<strong>Fragment encoding</strong>
+<ol>
+    <li>Fragment as 2D graps. Node features=1 hot encoding:  {C, N, O, S, B, Br, Cl, P, I, F, NH, N+, O-} </li>
+    <li> Graph transformer (Dwivedi and Bresson, 2020)
+</ol>
+
+<strong> Contrastive loss</strong>
+The cosine similarity between protein surface embedding $h_p$ and fragment embedding $h_f$:
+\begin{align} 
+    cos(h_p, h_f) = \frac{h_p \cdot h_f}{\|h_p\|\|h_f\|}
+\end{align}
+
+Loss computation such that positive pairs maximize and negative pairs minimize the Loss
+\begin{align} 
+    \mathcal{L}_{pos} &= -\mathbb{E}_{(p, f) \in P^+} [w(p, f) \log \sigma(cos(h_p, h_f))] \\
+    \mathcal{L}_{pos} &= -\mathbb{E}_{(p, f) \in P^-} [w(p, f) \log \sigma(-cos(h_p, h_f))]
+\end{align}
+Where, $\sigma$ sigmoid, and $w(p, f)$, weight based on the distance between the positive pairs. So, in short, points in surfaces that are closer to the fragments are made to align more strongly with the given fragment embeddings for positive pairs.
+
+<br/><br/>
+<strong>Non covalent interaction (NCI) loss</strong>
+<p>
+Is a lightweight feedforward NN with surface embeddings and input and $n_{NCI}+1$ classes. The model is tasked with computing the probabilities for the classes  {hydrophobic interactions, hydrogen bonds,
+    water bridges, salt bridges, $\pi$-stacks, $\pi$-cation interactions, halogen bonds, interaction presence}. These interaction information are extracted by using the <b>Protein-Ligand Interaction Profiler (PLIP) (Adasme et al)</b>
+</p>
+
+<br/>
+<strong> Fragment similarity penalty</strong>
+<p>Loss between true positive fragment and the embedding of a randomly sampled fragment from the same training library with tanimoto similarity below 0.1. Penalizes similar embeddings despite dissimilar chemical structures. Lower is better
+</p>
+
+All these losses are combined together to produce the final model training loss.
+
+
+<h2>Generative modelling using the model</h2>
+<ol>>
+    <li>Inspired by drugflow</li>
+</ol>
+</body>
+</html>
