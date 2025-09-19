@@ -92,9 +92,13 @@ Is a lightweight feedforward NN with surface embeddings and input and $n_{NCI}+1
 All these losses are combined together to produce the final model training loss.
 
 
-<h2>Generative modelling using the model</h2>
-<ol>>
-    <li>Inspired by drugflow</li>
+<h2>Generative modelling using the flow matching</h2>
+<ol><li>Inspired by drugflow</li>
+    <li>Quite thin on information here. I cannot figure out what they are trying to generate? What the $p_0$ and $p_1$ is here?
+    </li>
+    <li> However, to parameterize centroid coordinate of (fragments?), they use euclidean flow</li>
+    <li>To implement latent fragment embeddings, they use spherical flow.</li>
+    <li> This lets them generate what exactly? fragment embeddings at some generated positions?</li>
 </ol>
 </body>
 </html>
