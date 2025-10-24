@@ -94,11 +94,14 @@ All these losses are combined together to produce the final model training loss.
 
 <h2>Generative modelling using the flow matching</h2>
 <ol><li>Inspired by drugflow</li>
-    <li>Quite thin on information here. I cannot figure out what they are trying to generate? What the $p_0$ and $p_1$ is here?
+    <li>Quite thin on information. I cannot figure out what they are trying to generate? What is the $p_0$ and $p_1$ here?
     </li>
-    <li> However, to parameterize centroid coordinate of (fragments?), they use euclidean flow</li>
+    <li> To parameterize centroid coordinate of (fragments?), they use euclidean flow</li>
     <li>To implement latent fragment embeddings, they use spherical flow.</li>
     <li> This lets them generate what exactly? fragment embeddings at some generated positions?</li>
+    <li> "In LatentFrag, fragment embeddings and positions are gen-
+        erated conditioned on the protein surface while being chemically realistic by con-
+        struction". So what? That would only be useful if the actual fragment is recoverable from embeddings.</li>
 </ol>
 </body>
 </html>

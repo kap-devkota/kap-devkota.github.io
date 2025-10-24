@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Edit Flow </title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      tags: 'ams',
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+      macros: {
+        R: "\\mathbb{R}",
+        P: "\\mathbb{P}",
+        E: "\\mathbb{E}"
+      }
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+
+
+<style>
+    body {
+        counter-reset: heading;
+    } 
+
+    h2:before {
+        counter-increment: heading;
+        content: counter(heading) " ";
+        counter-reset: subheading;
+    }
+
+    h3:before {
+        content: counter(heading) "." counter(subheading) " ";
+        counter-increment: subheading;
+    }
+</style>
+
+
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+</head>
+<body>
+<h1>Edit Flows: Havasi et al</h1>
+
+<h2>Continuous Time Markov Chains (CTMC)</h2>
+The authors defined edits as a CTMC proceess $(X_t)_{t\in [0, 1]}$, where the infinetismal transitional probabilities are defined as 
+\begin{align} 
+\P(X_{t+h}=x | X_t=x_t) = \delta_{x_t}(x) + hu_t(x|x_t) + o(h) 
+\end{align}
+This naturally leads to a time-series ODE formulation:
+\begin{align} 
+\sum_{x_t} \P(X_{t+h}=x, X_t=x_t) &= \sum_{x_t} \P(X_t=x_t)\delta_{x_t}(x) + h \sum_{x_t} \P(X_t=x_t) u_t(x|x_t) + (\text{2nd order terms in h}) \\
+\P(X_{t+h}=x) - \P(X_{t}=x) &= h \sum_{x_t} P(X_t=x_t)u_t(x|x_t) \\
+\text{For infinitesimal h}\nonumber \\
+\frac{d p_t}{d t} (x) &= \sum_{y} u_t(x|y)p_t(y) & \P(X_t=x) \rightarrow p_t(x),\quad x_t \rightarrow y
+\end{align}
+In this formulation, unlike in classical flow matching, the vector field term $u_t$ maps to a real space (i.e. $u_t(x|x_t): \R \times \R \rightarrow \R$). 
+
+<h2>Training the model</h2>
+<h3>How the CTMF is described; intermediate flow states are modelled</h3>
+<p>
+The coupling between two distributions $\pi(x_0, x_1)$ determines the trajectory of their transitions, like in a standardized flow matching formulation. Suppose 
+</p>
+$p_t(x|x_0,x_1)$ governs the value at $t$ conditioned on the pair $(x_0, x_1)$, and let $u_t(x|x_t, x_0, x_1)$ generate $p_t(x|x_0, x_1)$ such that
+\begin{align}
+\frac{d p_t(x|x_0, x_1)}{dt} = \sum_{x_t} p_t(x_t|x_0, x_1) u_t(x|x_t, x_0, x_1)  \label{conditioned_on_terminal}
+\end{align}
+Then one can easily marginalize eq \ref{conditioned_on_terminal} as 
+\begin{align}
+    \frac{d \sum \pi(x_0, x_1) p_t(x|x_0, x_1)}{dt} &= \sum_{x_t} p_t(x_t) \sum_{x_0,x_1} p_t(x_0, x_1 | x_t) u_t(x|x_t, x_0, x_1) = \sum_{x_t} p_t(x_t) u_t(x|x_t) \\
+    \therefore u_t(x|x_t) &= \sum_{x_0,x_1} p_t(x_0, x_1|x_t) u_t(x|x_t, x_0, x_1)
+\end{align}
+<p>
+So, given couplings $(x_0=x_0^1x_0^2\ldots, x_1=x_1^1x_1^2\ldots)$ the constructed intermediate distribution $p_t(x|x_0, x_1)$ becomes
+</p>
+
+\begin{align}
+ p_t(x|x_0, x_1) &= \prod_{i=1}^{N} p_t(x^i| x_0^i, x_1^i) & \text{where, } p_t(x^i|x_0^i, x_1^i) = (1-\kappa_t)\delta_{x_0^i}(x^i) + \kappa_t \delta_{x_1^i}(x^i) \label{transitions}
+\end{align}
+<p>
+We conclude that throughout the trajectory interval $t\in [0,1]$, the tokens at position $i$ are only allowed to switch between starting token $x_0^i$ or $x_1^i$ if we used the probability transition in \ref{transitions}.
+</p>
+
+<h3>Edit-Flow specific flow modelling</h3>
+<p>
+The above section described properties/characteristics of discrete flow transitions. The specific implementation of discrete flow through EditFlow specified further refinements.  
+<ol>
+    <li>
+        Increasing the token space $\mathcal{T}$ by 1 to include a blank token $\epsilon$, producing 
+    </li>
+    <li>
+        Let $\pi(x_0,x_1)
+    </li>
+</ol>
+</p>
+</body>
+</html>

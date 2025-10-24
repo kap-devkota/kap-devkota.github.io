@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Representation theory</title>
+    <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    window.MathJax = {
+        tex: {
+        tags: 'ams',
+        inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+        displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+        },
+        options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+
+    <style>
+        body {
+            counter-reset: heading;
+        } 
+
+        h2:before {
+            counter-increment: heading;
+            content: counter(heading) " ";
+            counter-reset: subheading;
+        }
+
+        h3:before {
+            content: counter(heading) "." counter(subheading) " ";
+            counter-increment: subheading;
+        }
+    </style>
+
+    <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</head>
+<body>
+<h1>Representation theory primer</h1>
+<h2>Representation</h2>
+<strong>Definition:</strong>
+<p>
+Let $\rho$ be a homomorphism between some group $G$ to a general linear group $GL(V)$, $V$ being some vector space over a field $F$. This is how we refer to as a representation of the group $G$. 
+</p>
+<p> 
+A linear subspace $W \subset V$ is called G-invariant if $\rho(g)w \in W$ for all $g\in G$ and all $w\in W$. This restricts $\rho$ to group operation in $W \subset V$, which is also known as the sub-representation of $V$. $\rho$ is called irreducible if it has only trivial subrepresentations. 
+</p>
+
+<h3>Given a basis, we can represent a representation as a square matrix $D$. If $D$ can be represented in an upper triangular block by an invertible matrix $P$ (i.e. $D'(g), g \in G$ is block diagonal, $D'(g)=P^{-1}D(g) P$), it is reducible and vice versa.</h3>
+<p><strong>Proof:</strong> Trivial</p>
+
+<h3>Any representation is decomposable into irreducible representations. In other words, $P^{-1} D(g) P = D^{(1)}(g) \oplus D^{(2)}(g) \oplus \cdots \oplus D^{(k)}(g)$</h3>
+<p><strong>Proof:</strong> Trivial</p>
+
+
+<h2>Representation theory of $SU(2)$</h2>
+Below we outline some important properties of the $SU(2)$ space.
+<ol>
+    
+</ol>
+
+
+</body>
