@@ -105,11 +105,11 @@ The main goal is to have a model $u_t^\theta(x|x_t)$ that closely approximates t
     <strong>Insertion ($x = ins(x_t, i, a)$):</strong> Insertion of token $a$ at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{ins}(x_t)Q_{t, i}^{ins}(a|x_t)$
   </li>
   <li>
-    <strong>Deletion ($x = ins(x_t, i)$):</strong> Deletion at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{del}(x_t)$
+    <strong>Deletion ($x = del(x_t, i)$):</strong> Deletion at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{del}(x_t)$
   </li>
 
   <li>
-    <strong>Substitution ($x = ins(x_t, i, a)$):</strong> Substitution of token $a$ at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{sub}(x_t)Q_{t, i}^{sub}(a|x_t)$
+    <strong>Substitution ($x = sub(x_t, i, a)$):</strong> Substitution of token $a$ at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{sub}(x_t)Q_{t, i}^{sub}(a|x_t)$
   </li>
 </ol>
 $u_t^\theta$ takes one of these three forms given the type of the input $x$.
