@@ -98,7 +98,7 @@ Looking closely at \ref{transitions}, it becomes clear that that throughout the 
 
 <h3>Edit-Flow specific flow modelling</h3>
 <p>
-The main goal is to have a model $u_t^\theta(x|x_t)$ that closely approximates the true marginal rate $u_t(x|x_t)$. Similar to the flow matching formulation, we approximate  this marginal rate using \ref{marginal_rate}. But what constitutes the components of the model $u^\theta_t(x|x_t)$? The trick is to only give a non-zero rate to inputs $x$ that has at most one edit-distance from $x_t$ at time $t$. In short, there can be three types of inputs to $u_t^\theta(\cdot |x_t)$, given $x_t$.
+The main goal is to have a model $u_t^\theta(x|x_t)$ that closely approximates the true marginal rate $u_t(x|x_t)$. Similar to the flow matching formulation, we approximate  this marginal rate using \ref{marginal_rate}. But what constitutes the components of the model $u^\theta_t(x|x_t)$? The trick is to only make $u_t^\theta(x|x_t)$ estimate $u_t(x|x_t)$ that assigns a non-zero rate to inputs $x$ with at most one edit-distance from $x_t$ at time $t$. In short, there can be three types of inputs to $u_t^\theta(\cdot |x_t)$, given $x_t$.
 </p>
 <ol>
   <li>
