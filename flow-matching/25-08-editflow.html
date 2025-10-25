@@ -112,7 +112,7 @@ The main goal is to have a model $u_t^\theta(x|x_t)$ that closely approximates t
     <strong>Substitution ($x = sub(x_t, i, a)$):</strong> Substitution of token $a$ at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{sub}(x_t)Q_{t, i}^{sub}(a|x_t)$
   </li>
 </ol>
-$u_t^\theta$ takes one of these three forms given the type of the input $x$.
+$u_t$ takes one of these three forms given the type of the input $x$. Note that though that is the case for $u_t$, $u_t^\theta$ can still induce more than one edits at a time $t$ during edits.
 
 <h3 id="sampling">Sampling</h3>
 <p>
