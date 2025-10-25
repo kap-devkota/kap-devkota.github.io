@@ -74,30 +74,119 @@ $p_t(x|x_0,x_1)$ governs the value at $t$ conditioned on the pair $(x_0, x_1)$, 
 Then one can easily marginalize eq \ref{conditioned_on_terminal} as 
 \begin{align}
     \frac{d \sum \pi(x_0, x_1) p_t(x|x_0, x_1)}{dt} &= \sum_{x_t} p_t(x_t) \sum_{x_0,x_1} p_t(x_0, x_1 | x_t) u_t(x|x_t, x_0, x_1) = \sum_{x_t} p_t(x_t) u_t(x|x_t) \\
-    \therefore u_t(x|x_t) &= \sum_{x_0,x_1} p_t(x_0, x_1|x_t) u_t(x|x_t, x_0, x_1)
+    \therefore u_t(x|x_t) &= \sum_{x_0,x_1} p_t(x_0, x_1|x_t) u_t(x|x_t, x_0, x_1) \label{marginal_rate}
 \end{align}
 <p>
-So, given couplings $(x_0=x_0^1x_0^2\ldots, x_1=x_1^1x_1^2\ldots)$ the constructed intermediate distribution $p_t(x|x_0, x_1)$ becomes
+This indicates that the general rate $u_t(x|x_t)$ can be estimated, provided that the conditional rates 
+$u_t(x|x_t,x_0,x_1)$ is known.
 </p>
 
+<h3>Choice of the conditional rate $u_t(x|x_t,x_0,x_1)$</h3>
+<p>
+  The forward process governing token edits that transforms $x_0$ to $x_1$  is modelled as a joint distribution of individual token probabilities (i.e. $p_t(x|x_0,x_1) = \prod_{i=1}^N p_t(x^i|x_0^i, x_1^i)$). More specifically,  
+</p>
+
+
 \begin{align}
- p_t(x|x_0, x_1) &= \prod_{i=1}^{N} p_t(x^i| x_0^i, x_1^i) & \text{where, } p_t(x^i|x_0^i, x_1^i) = (1-\kappa_t)\delta_{x_0^i}(x^i) + \kappa_t \delta_{x_1^i}(x^i) \label{transitions}
+p_t(x^i|x_0^i, x_1^i) &= (1-\kappa_t)\delta_{x_0^i}(x^i) + \kappa_t \delta_{x_1^i}(x^i) \label{transitions} \\
+\text{This results in } u_t(x^i|x_0^i, x_1^i) &\text{ taking the form} \nonumber\\
+u_t(x^i|x_t^i,x_0^i, x_1^i) &= \frac{\dot{\kappa_t}}{1-\kappa_t} (\delta_{x^i_1}(x^i) - \delta_{x_t^i}(x^i))
 \end{align}
 <p>
-We conclude that throughout the trajectory interval $t\in [0,1]$, the tokens at position $i$ are only allowed to switch between starting token $x_0^i$ or $x_1^i$ if we used the probability transition in \ref{transitions}.
+Looking closely at \ref{transitions}, it becomes clear that that throughout the trajectory interval $t\in [0,1]$, the tokens at position $i$ are only allowed to switch to the final token $x_1^i$. Once it switches at some time $t^*_i$ (for the token $i$), it will remain unchanged.
 </p>
 
 <h3>Edit-Flow specific flow modelling</h3>
 <p>
-The above section described properties/characteristics of discrete flow transitions. The specific implementation of discrete flow through EditFlow specified further refinements.  
-<ol>
-    <li>
-        Increasing the token space $\mathcal{T}$ by 1 to include a blank token $\epsilon$, producing 
-    </li>
-    <li>
-        Let $\pi(x_0,x_1)
-    </li>
-</ol>
+The main goal is to have a model $u_t^\theta(x|x_t)$ that closely approximates the true marginal rate $u_t(x|x_t)$. Similar to the flow matching formulation, we approximate  this marginal rate using \ref{marginal_rate}. But what constitutes the components of the model $u^\theta_t(x|x_t)$? The trick is to only give a non-zero rate to inputs $x$ that has at most one edit-distance from $x_t$ at time $t$. In short, there can be three types of inputs to $u_t^\theta(\cdot |x_t)$, given $x_t$.
 </p>
+<ol>
+  <li>
+    <strong>Insertion ($x = ins(x_t, i, a)$):</strong> Insertion of token $a$ at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{ins}(x_t)Q_{t, i}^{ins}(a|x_t)$
+  </li>
+  <li>
+    <strong>Deletion ($x = ins(x_t, i)$):</strong> Deletion at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{del}(x_t)$
+  </li>
+
+  <li>
+    <strong>Substitution ($x = ins(x_t, i, a)$):</strong> Substitution of token $a$ at location $i$. For this input, $u_t^\theta(x|x_t)=\lambda_{t,i}^{sub}(x_t)Q_{t, i}^{sub}(a|x_t)$
+  </li>
+</ol>
+$u_t^\theta$ takes one of these three forms given the type of the input $x$.
+
+<h3 id="sampling">Sampling</h3>
+<p>
+Given that we have a trained $u_t^\theta$, the forward sampling becomes clear:
+<ol>
+  <li>
+    Start with some token $x_t=x_0=x_0^1x_0^1\ldots$
+  </li>
+  <li>At each location $i$, compute three probabilities $(h \lambda_{t,i}^{ins}(x_t), h\lambda_{t,i}^{del}(x_t), h\lambda_{t,i}^{ins}(x_t))$. The probability that it stays unchanged is $1 - h( \lambda_{t,i}^{ins}(x_t) + \lambda_{t,i}^{del}(x_t)+ \lambda_{t,i}^{ins}(x_t))$</li>
+  <li> If insertion or substitution, get logits from $Q_{t,i}^{ins/sub}(\cdot|X_t)$ to determine the inserted and substituted token. If deletion, then delete at $i$. Otherwise keep as it is.</li>
+  <li>$t \rightarrow t+h$</li>
+</ol>
+They also comment on <strong>Appendix C.1</strong> on how to aggregate changes/edits to already modified locations in the sequence during sampling.
+</p>
+
+<h3>Training: How to create a forward path transforming $x_0$ to $x_1$?</h3>
+<p> Suppose $x_0, x_1$ be the pairs sampled from the coupling probability $\pi$. These sequences are randomly padded with a new token $\epsilon$ to form $z_0, z_1$ such that their lengths are the same. Then, we can devise 1-step edit operations that gradually transforms $z_0$ to $z_1$.</p>
+
+<p>Adding one extra token causes the conditionals and the marginals to change as well. Let $u_t(x,z|x_t,z_t,z_0, z_1)$ denote the resulting rate. Then, the marginal $u_t(x|x_t)$ to be approximated by our model can be determined as follows</p>
+
+\begin{align}
+  \frac{d p_t(x, z | z_0, z_1)}{dt} &= \sum_{x_t, z_t} u_t(x,z|x_t,z_t, z_0, z_1) p_t(x_t, z_t|z_0, z_1) \\
+  \text{multiply }\pi(z_0,z_1)\text{ on both sides, } & \text{sum on }z_0, z_1, z \nonumber \\
+  \frac{d p_t(x)}{dt} &= \sum_{x_t} p_t(x_t) \sum_{z_0,z_1,z_t} p_t(z_0, z_1, z_t | x_t)u_t(x,z|x_t,z_t, z_0,z_1) \\
+  \therefore u_t(x|x_t) &=\sum_{z_0,z_1,z_t} p_t(z_0, z_1, z_t | x_t)u_t(x,z|x_t,z_t, z_0,z_1) = \E_{p_t(z_0, z_1, z_t|x_t)} u_t(x,z|x_t,z_t, z_0, z_1) \label{final} \\
+  \text{Where} \nonumber \\
+  u_t(x,z|x_t,z_t, z_0,z_1) = \delta_{f_{rm\_\epsilon}(z)}(x) \sum_{i=1}^N \frac{\dot{\kappa}_t}{1-\kappa_t} (\delta_{z_1^i}(z^i) - \delta_{z_t^i}(z^i))\delta_{z_t}(z^{\neg i})
+\end{align}
+The goal is then to make sure that the $u_t(x|x_t)$ (formulated in \ref{final}) matches $u^{\theta}_t(x|x_t)$.
+
+<h3>Training: Loss computation </h3>
+The authors computed loss by minimizing the Bregman divergence: 
+\begin{align}
+\mathcal{L}(\theta) = \E_{\pi(x_0, x_1), x_t}\left[F(u_t(\cdot|x_t)) - F(u^\theta_t(\cdot|x_t)) - \langle u_t(x|x_t) - u^\theta_t(x_t|x), F'(u^\theta_t(\cdot|x_t) \rangle \right] \label{l1}
+\end{align}
+They chose $F=Entropy$.
+
+So \ref{l1} became
+\begin{align}
+ \mathcal{L}(\theta) &= \E_{t, \pi(z_0, z_1), p(x_t, z_t|z_0, z_1)} [u_t^\theta(x_t|x_t) + \sum_z\sum_{x\neq x_t} u_t(x, z|x_t, z_t,z_0, z_1) \log u_t^\theta(x|x_t)] + const \label{final_loss}
+\end{align}
+
+<h2>Final summary</h2>
+<h3>Model architecture</h3>
+<ol>
+  <li>
+    The model during training can be written like this: $u_t^\theta(x|x_t)=is\_ins(x,x_t) u_t^{\theta, ins}(x, x_t) + is\_del(x,x_t)u_t^{\theta, ins}(x, x_t) + is_sub(x,x_t)u_t^{\theta, sub}(x,x_t)$
+    This is because there is always an edit distance separation of 1 between $x$ and $x_t$ during training. 
+  </li>
+  <li>
+    During sampling, each of the sub-modules $\lambda_{t}^{ins|del|sub}$ and $Q_{t}^{ins|sub}$ are used separately (see <a href="#sampling">Sampling</a>)
+  </li>
+</ol>
+
+<h3>Training Loop</h3>
+<ol>
+<li>Sample $x_0, x_1 \sim \pi$. Randomly pad $\epsilon$ to produce $z_0, z_1$.
+</li>
+<li>
+  Start with $x_t=x_0$. Construct $z_{t_0},z_{t_2}\ldots z_{t_{K-1}=1}$ where $t_1=0 < t_2 < \ldots t_{K-1}=1$ such that the edit distance between consecutive sequences is exactly 1.
+</li>
+
+<li>Randomly sample $t \in [0, 1]$. Find the closest $t_i$ to $t$</li>
+
+<li>
+  $x_t=f_{rm\_\epsilon}(z_t)$. Compute the loss 
+  $L_{Bregman} (u^\theta(\cdot|x_t), u(\cdot|x_t))$ (use \ref{final_loss}). Backpropagate and update.
+</li>
+
+<li> Repeat 1.</li>
+</ol>
+
+
+<h3>Testing and sampling loop</h3>
+See <a href="#sampling">Sampling</a>
 </body>
 </html>
