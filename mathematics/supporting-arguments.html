@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supporting Lie Group proofs</title>
+    <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    window.MathJax = {
+        tex: {
+        tags: 'ams',
+        inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+        displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+        },
+        options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+
+    <style>
+        body {
+            counter-reset: heading;
+        } 
+
+        h2:before {
+            counter-increment: heading;
+            content: counter(heading) " ";
+            counter-reset: subheading;
+        }
+
+        h3:before {
+            content: counter(heading) "." counter(subheading) " ";
+            counter-increment: subheading;
+        }
+    </style>
+
+    <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</head>
+<body>
+    <h1>Some Proofs on Lie Groups and Lie algebra</h1>
+
+    <h2>Left Invariant Vector Fields</h2>
+    <h3>Suppose $X$ is a left-invariant vector field, and $\phi^X_t$ is its generating flow, such that $\frac{d \phi^X_t(p)}{dt} =X(p)$. Then $\phi^X_t(p) = p\exp(tX_e)$</h3>
+<strong>Proof:</strong>
+\begin{align}
+L_{p^{-1},*} \frac{d\phi^X_t(p)}{dt}|_{t=0} &= L_{p^{-1}, *} X_{p} = L_{p^{-1}, *} L_{p, *} X_e = X_e \\
+\frac{d p^{-1} \phi_t^X(p)}{dt}|_{t=0} &= X_e 
+\end{align}
+Assume $p^{-1} \phi^X_t(p) = \gamma(t)$. Then, $\gamma(0)=e, \gamma'(0)=X_e$ and 
+\begin{align}
+\frac{d \gamma(t)}{dt}|_{t=\tau} &= L_{p^{-1},*}X_{\phi^X_t(p)} = L_{p^{-1}\phi^X_t(p),*}X_{e} = L_{\gamma(t), *}(X_e) 
+\end{align}
+This indicates that $\gamma(t)=\exp(tX_e)$. Thus, 
+\begin{align} 
+\phi^X_t(p) = p\exp(tX_e) \label{eq:1}
+\end{align}
+</body>
+
+<h3>Lie bracket formulation</h3>
+Let $\phi^X_t(p), \phi^Y_t(p)$ be the generating flow of the left invariant vector fields $X, Y$ respectively. Then, the canonical definition of the Lie bracket is 
+\begin{align} 
+    [X, Y]_p = \frac{d \phi^{X}_{-t, *}Y}{dt} &= \lim_{t \rightarrow 0}\frac{\phi^X_{-t,*} Y_{\phi^{t}_X(p)} - Y_{p}}{t}  \\
+ &= \lim_{t\rightarrow 0} \frac{\phi^X_{-t,*}L_{p \exp(tX_e), *} Y_{e} - L_{p,*}Y_{e}}{t} \\
+ &= \lim_{t\rightarrow 0} \frac{(\phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)})_* Y_{e} - L_{p,*}Y_{e}}{t} \\ 
+\end{align}
+
+However, as we know, from \ref{eq:1} that
+\begin{align} 
+    \phi^X_{-t} (L_p L_{\exp(tX_e)} g) = p\exp(tX_e)g\exp(-tX_e)
+\end{align}
+
+</html>
