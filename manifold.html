@@ -7,7 +7,21 @@
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
   window.MathJax = {
     tex: {
-    tags: 'ams'
+    tags: 'ams',
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+      macros: {
+        R: "\\mathbb{R}",
+        P: "\\mathbb{P}",
+        E: "\\mathbb{E}",
+        X: "\\mathbf{X}",
+        o: "\\mathbf{o}",
+        r: "\\mathbf{\\tilde{r}}",  
+        gt: "GotenNet"
+    }
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
     }
   }
 </script>
@@ -171,8 +185,17 @@ R_{ijlh,k} &= \frac{1}{2} (\partial_k\partial_i\partial_h g_{lj} - \partial_k \p
 &\quad - \frac{1}{2} (\partial_k \partial_j \partial_i g_{lh} - \partial_k \partial_j \partial_l g_{ih} )\\
 R_{ijhk,l} &= \frac{1}{2} (\partial_l\partial_i\partial_k g_{hj} - \partial_l \partial_i\partial_h g_{kj}) \\ 
 &\quad - \frac{1}{2} (\partial_l \partial_j \partial_i g_{hk} - \partial_l \partial_j \partial_h g_{ik} )
-
 \end{align}
+Summing all together, we get 0
+
+
+<h3>Lie groups</h3>
+What is the covariant derivative of a Lie group?
+\begin{align} 
+2 \langle \nabla_Y X, Z\rangle &= (L_X g) (Y, Z) + d\theta_X (Y, Z)
+\end{align}
+
+Where, $\theta_X = g(X, \cdot)$
 
 </body>
 </html>

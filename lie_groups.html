@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Lie Derivations </title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script>
+  window.MathJax = {
+    tex: {
+      tags: 'ams',
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+      displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+      macros: {
+        R: "\\mathbb{R}",
+        P: "\\mathbb{P}",
+        E: "\\mathbb{E}",
+        X: "\\mathbf{X}",
+        o: "\\mathbf{o}",
+        r: "\\mathbf{\\tilde{r}}",  
+        gt: "GotenNet"
+    }
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  };
+</script>
+
+
+<style>
+    body {
+        counter-reset: heading;
+    } 
+
+    h2:before {
+        counter-increment: heading;
+        content: counter(heading) " ";
+        counter-reset: subheading;
+    }
+
+    h3:before {
+        content: counter(heading) "." counter(subheading) " ";
+        counter-increment: subheading;
+    }
+</style>
+
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
+</head>
+
+<body>
+<h1> Lie Group derivations</h1>
+<h2>Covariant Derivatives of a Lie group</h2>
+<p>
+    Let $X, Y, Z$ be left-invariant field in a Lie Group $G$. To obtain the covariant derivative $\nabla_Y X$:
+</p>
+\begin{align} 
+ 2\langle \nabla_Y X, Z \rangle &= (L_X g)(Y, Z) + d\theta_X (Y, Z) \\ 
+&= D_X (g(Y, Z)) - g([X, Y], Z) - g(Y, [X, Z]) + \partial_k g_{ij} X^i (Y^k Z^j - Y^j Z^k) + g_{ij} \partial_k X^i (Y^k Z^j - Y^j Z^k)  \\
+&= -g([X, Y], Z) - g(Y, [X, Z]) + (-g_{ij}Y^k \partial_k (X^i Z^j) +g_{ij}Z^k \partial_k (X^i Y^j) + g_{ij}\partial_kX^i Y^k Z^j - g_{ij}\partial_kX^i Y^jZ^k ) \\
+&= -g([X, Y], Z) - g(Y, [X, Z]) + (-g_{ij}Y^k X^i \partial_k (Z^j) +g_{ij}Z^kX^i \partial_k ( Y^j) ) \\ 
+&= -g([X, Y], Z) - g(Y, [X, Z]) - g(X, [Y, Z])
+\end{align}
+
+</body>
+</html>
