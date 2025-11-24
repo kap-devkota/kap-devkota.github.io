@@ -62,12 +62,43 @@ Let $\phi^X_t(p), \phi^Y_t(p)$ be the generating flow of the left invariant vect
 \begin{align} 
     [X, Y]_p = \frac{d \phi^{X}_{-t, *}Y}{dt} &= \lim_{t \rightarrow 0}\frac{\phi^X_{-t,*} Y_{\phi^{t}_X(p)} - Y_{p}}{t}  \\
  &= \lim_{t\rightarrow 0} \frac{\phi^X_{-t,*}L_{p \exp(tX_e), *} Y_{e} - L_{p,*}Y_{e}}{t} \\
- &= \lim_{t\rightarrow 0} \frac{(\phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)})_* Y_{e} - L_{p,*}Y_{e}}{t} \\ 
+ &= \lim_{t\rightarrow 0} \frac{(\phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)})_* Y_{e} - L_{p,*}Y_{e}}{t}  \label{eq:7}\\
 \end{align}
 
 However, as we know, from \ref{eq:1} that
 \begin{align} 
-    \phi^X_{-t} (L_p L_{\exp(tX_e)} g) = p\exp(tX_e)g\exp(-tX_e)
+    \phi^X_{-t} (L_p L_{\exp(tX_e)} g) = p\exp(tX_e)g\exp(-tX_e) 
+\end{align}
+
+So, $((\phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)})_* Y_{e})(f)$ becomes
+
+\begin{align} 
+((\phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)})_* Y_{e})(f) &= Y_e (f \circ \phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)}) \\
+&= \lim_{\tau \rightarrow 0} \frac{f(\phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)} \circ \phi_{\tau}^Y(e)) - f(p)}{\tau} \\
+&= \lim_{\tau \rightarrow 0} \frac{f(p \exp(tX_e) \exp(\tau Y_e) \exp(-tX_e)) - f(p)}{\tau} \\
+&= \frac{d (p \phi_t^X(e)\phi_{\tau}^{Y_e} \phi_{-t}^X(e) )}{d\tau} (f) \\
+&= L_{p, *}  \frac{d (\phi_t^X(e)\phi_{\tau}^{Y}(e) \phi_{-t}^X(e) )}{d\tau} (f) \\
+&= L_{p, *}\circ (\phi^X_{-t} \circ L_{\exp(tX_e)})_{*}Y_e (f) \\
+\therefore
+(\phi^X_{-t} \circ L_{p} \circ  L_{\exp(tX_e)})_* Y_{e} &= L_{p, *}\circ (\phi^X_{-t} \circ L_{\exp(tX_e)})_{*}Y_e
+\end{align}
+
+Thus \ref{eq:7} becomes
+\begin{align}
+ [X, Y]_p &= L_{p, *} \circ \left(\lim_{t \rightarrow 0} \frac{(\phi_{-t}^X \circ L_{\exp(tX_e)})_* Y_e - Y_e}{t} \right) \\
+ &= L_{p, *} [X, Y]_e
+\end{align}
+
+
+<h3>Corollary: $(\phi^X_{t} \cdot L_g)_*(Y_e) = (L_g)_* \phi^X_{(t,*)} Y_e$, leading to $\phi_{t,*}^X L_{g,*}=L_{g,*}\phi_{t,*}^X$. So they commute</h3>
+
+<p>We can verify, for all $f: G \rightarrow \mathbb{R}$, </p>
+\begin{align} 
+(\phi^X_{t} \cdot L_g)_*(Y_e) (f) &= Y_e(f \circ \phi^X_t \circ L_g) \\
+&= \lim_{\tau \rightarrow 0} \frac{(f \circ \phi^X_t \circ L_g)(\exp(\tau Y_e)) - f \circ \phi^X_t(g)}{\tau} \\
+&= \lim_{\tau \rightarrow 0} \frac{f(g\exp(\tau Y_e)\exp(tX_e)) - f(g\exp(tX_e))}{\tau} \\
+&= \lim_{\tau \rightarrow 0} \frac{d(g\exp(\tau Y_e)\exp(tX_e))}{d\tau}|_{\tau=0} (f) \\
+&= L_{g, *} \phi_{t,*}^X (Y_e) (f)
 \end{align}
 
 </html>

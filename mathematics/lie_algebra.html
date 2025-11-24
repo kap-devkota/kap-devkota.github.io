@@ -38,23 +38,53 @@
     </script>
 </head>
 <body>
-<h2>Lie Groups</h2>
-Lie groups $G$ are manifolds equipped with two operations:
-<ol>
-    <li>Group multiplication: $\mu: G \times G \rightarrow G $ </li>
-    <li>Inversion: $inv: G \rightarrow G$ </li>
-</ol>
+<h2>Lie Algebra representation of $su(2)$</h2>
 
-<h3>Left Invariant vector fields</h3>
-A vector field $X$ on $G$ is called left-invariant if 
+<p>The three basis of $su(2)$ are </p>
 \begin{align} 
-    X_p = (L_p)_* X_e
+u_1 = \begin{pmatrix}0 & i \\ i & 0\end{pmatrix} \quad\quad u_2 = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix} \quad\quad u_3 = \begin{pmatrix}i & 0\\ 0 & -i\end{pmatrix}
 \end{align}
-Where $L_p: G \rightarrow G; L_p(g) = \mu(p,g) = pg$
-</body>
 
-<p>
-    Define a ve
-</p>
+The complexification of $su(2)$ results in $sl(2, C)$, with basis
+
+\begin{align} 
+H = \begin{pmatrix}1 & 0 \\ 0 & -1 \end{pmatrix} \quad\quad X = \begin{pmatrix}0 & 1 \\ 0 & 0 \end{pmatrix} \quad\quad Y = \begin{pmatrix}0 & 0 \\ 1 & 0 \end{pmatrix}
+\end{align}
+
+Now, assuming the lie bracket holds, we see the following relations
+\begin{align} 
+\begin{matrix} [H, X]=2X & [H, Y]=-2Y & [X, Y]=H \end{matrix}
+\end{align}
+
+Assume $v$ an eigenvector of $H$ with eigenvalue $\alpha$. 
+Then,
+\begin{align}
+H(Xv) = ([H, X] + XH)v = (\alpha+2)Xv \\
+H(Yv) = ([H, Y] + YH)v = (\alpha-2)Yv 
+\end{align}
+So, $X$ raises the eigenvalue by 2, making it a raising operator, while $Y$ is a lowering operator.
+
+Assume $V$ is an irreducible, finite dimensional representation of the $sl(2, C)$. Then, $H$ should have only finite eigenvalues (i.e. only the finite application of lowering or raising operator produces a non-zero eigenvalue). Let $\lambda$ be the highest eigenvalue. Then
+\begin{align} 
+Xv_0 = 0, given Hv_0 = \lambda v_0
+\end{align}
+
+Define $v_k=Y^k v_0$. Then
+\begin{align} 
+Xv_k = XY^k v_0 &= ([X, Y] + YX)Y^{k-1}v_0 \\
+&= HY^{k-1}v_0 + YHY^{k-2}v_0 + \ldots + Y^{k-1}\lambda v_0 \\
+&= -2(k-1)v_{k-1} + 2\lambda v_{k-1} + \underbrace{YHY^{k-2} + Y^{k-2}HY}_{k-2\text{ times}} \\
+&= -2 v_{k-1}\sum_{i=1}^{k-1} i + k\lambda v_{k-1} \\
+&= k(\lambda - (k-1))v_{k-1}
+\end{align}
+
+Since, eventually, $v_1, \ldots$ returns zeros, let $v_m$ denote the last non-zero eigenvector. Then,
+\begin{align}
+0 = Xv_{m+1} = (m+1)(\lambda - m)v_{m} 
+\end{align}
+indicating that $\lambda=m$. 
+
+
+</body>
 
 </html>
