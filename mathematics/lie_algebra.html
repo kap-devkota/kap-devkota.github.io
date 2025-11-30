@@ -8,29 +8,68 @@
         tex: {
         tags: 'ams',
         inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
-        displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+        displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+
+        macros: {
+            Rb: "\\mathbb{R}",
+            gf: "\\mathfrak{g}",
+            su: "\\mathfrak{su}",
+            sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+            Ac: "\\mathcal{A}"
+        }
         },
         options: {
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
+        },
     };
     </script>
 
     <style>
+        lemma {
+            display: block;            /* behaves like <h3> */
+            margin-top: 1em;           /* space before, like a line break */
+            font-weight: bold;         /* match heading style */
+            font-size: 1.1em;         /* approx h3 size (browser default) */
+        }
+
+    /* Define how lemma is displayed anywhere you use <lemma> */
+        lemma:before {
+            counter-increment: equation;
+            content: "Lemma " counter(heading) "." counter(equation) ": ";
+            font-weight: bold;
+        }
+
+        theorem {
+            display: block;            /* behaves like <h3> */
+            margin-top: 1em;           /* space before, like a line break */
+            font-weight: bold;         /* match heading style */
+            font-size: 1.1em;         /* approx h3 size (browser default) */
+        }
+
+    /* Define how lemma is displayed anywhere you use <lemma> */
+        theorem:before {
+            counter-increment: equation;
+            content: "Theorem " counter(heading) "." counter(equation) ": ";
+            font-weight: bold;
+        }
+
         body {
-            counter-reset: heading;
+            counter-reset: heading equation;
         } 
 
         h2:before {
             counter-increment: heading;
             content: counter(heading) " ";
-            counter-reset: subheading;
+            counter-reset: subheading equation;
         }
 
         h3:before {
             content: counter(heading) "." counter(subheading) " ";
             counter-increment: subheading;
         }
+
+
+
     </style>
 
     <script type="text/javascript" id="MathJax-script" async
@@ -40,12 +79,12 @@
 <body>
 <h2>Lie Algebra representation of $su(2)$</h2>
 
-<p>The three basis of $su(2)$ are </p>
+<p>The three basis of $\su(2)$ are </p>
 \begin{align} 
 u_1 = \begin{pmatrix}0 & i \\ i & 0\end{pmatrix} \quad\quad u_2 = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix} \quad\quad u_3 = \begin{pmatrix}i & 0\\ 0 & -i\end{pmatrix}
 \end{align}
 
-The complexification of $su(2)$ results in $sl(2, C)$, with basis
+The complexification of $\su(2)$ results in $\sl$, with basis
 
 \begin{align} 
 H = \begin{pmatrix}1 & 0 \\ 0 & -1 \end{pmatrix} \quad\quad X = \begin{pmatrix}0 & 1 \\ 0 & 0 \end{pmatrix} \quad\quad Y = \begin{pmatrix}0 & 0 \\ 1 & 0 \end{pmatrix}
@@ -64,7 +103,7 @@ H(Yv) = ([H, Y] + YH)v = (\alpha-2)Yv
 \end{align}
 So, $X$ raises the eigenvalue by 2, making it a raising operator, while $Y$ is a lowering operator.
 
-Assume $V$ is an irreducible, finite dimensional representation of the $sl(2, C)$. Then, $H$ should have only finite eigenvalues (i.e. only the finite application of lowering or raising operator produces a non-zero eigenvalue). Let $\lambda$ be the highest eigenvalue. Then
+Assume $V$ is an irreducible, finite dimensional representation of the $\sl$. Then, $H$ should have only finite eigenvalues (i.e. only the finite application of lowering or raising operator produces a non-zero eigenvalue). Let $\lambda$ be the highest eigenvalue. Then
 \begin{align} 
 Xv_0 = 0, given Hv_0 = \lambda v_0
 \end{align}
@@ -85,6 +124,128 @@ Since, eventually, $v_1, \ldots$ returns zeros, let $v_m$ denote the last non-ze
 indicating that $\lambda=m$. 
 
 
-</body>
+<h2>Universal enveloping algebra and casimir operators</h2>
+Every Lie algebra $\gf$ can be embedded into an associative algebra $\Ac$, such that a bracket operation
+in $\gf$ corresponds to a commutation operation $xy-yx$ in $\Ac$. This unital algebraic structure of the Universal enveloping algebra correspond precisely to the representation of the Lie algebra. 
+
+<h3>Formal construction</h3>
+Construct a associative tensor algebra $T(\gf)$ from $\gf$ as 
+\begin{align}
+T(\gf) = F \oplus \gf \oplus \gf \otimes \gf \oplus \gf \otimes \gf \otimes \gf \oplus \cdots
+\end{align}
+
+Now, add lift the bracket operation to $T(\gf)$ such that
+\begin{align} 
+[a, b\otimes c] &= [a, b] \otimes c + b \otimes [a, c] \\
+[a\otimes b, c] &= [a, c]\otimes b + a\otimes [b, c]
+\end{align}
+
+Now, the application of the equivalence relation $\sim$, given as
+\begin{align} 
+[a, b] = a\otimes b - b \otimes a
+\end{align}
+on $T(\gf)$ produces the <em>universal enveloping algebra</em> $U(\gf)$.
+
+
+<lemma>A linear mapping to an unital algebra $A$, $\varphi: \gf \rightarrow A$, can be canonically extended to $U(\gf)$ </lemma>
+
+Proof: We know $\varphi([X, Y]) = \varphi(X)\varphi(Y) - \varphi(Y)\varphi(X)$. Formulate $\hat{\varphi}$ as follows
+\begin{align}
+\hat{\varphi}(X_1\otimes X_2\otimes \ldots X_n) = \varphi(X_1)\varphi(X_2) \ldots \varphi(X_n) 
+\end{align} 
+Then, 
+\begin{align}
+    \hat{\varphi}([X_1, X_2\otimes X_3]) &= \hat{\varphi}(X_1X_2X_3 - X_2X_1X_3) + \hat{\varphi}(X_2X_1X_3 - X_2X_3X_1) \\
+    &= [\varphi(X_1), \hat{\varphi}(X_2\otimes X_3)]
+\end{align}
+
+
+An important Theorem follows
+<theorem> <em>(Poincare-Birkoff-Witt)</em> Let $\gf$ be a Lie algebra over a field, and let $U(\gf)$ be an universal enveloping algebra. If $\gf$ has an ordered basis $(x_i)_{i\in I}$, then the monomials $x_{i_1}\cdots x_{i_k}, i_1 \leq i_2\leq \ldots i_k, k\geq 0$ forms the basis of $U(\gf)$ as a vector space.</theorem>
+
+<theorem id="lie"> <em>(Lie Theorem)</em> If $\pi: \gf \rightarrow \mathfrak{gl}(V)$ is a finite dimensional representation of a solvable Lie algebra, then there is a flag $V = V_0 \supset V_1 \supset V_2 \ldots \supset V_n = 0$ of invariant subspaces of $\pi(g)$ with codim $V_i=i$, meaning $\pi(X)(V_i) \subseteq V_i$ for each $X \in \gf$ and $i$.</theorem>
+
+<p>
+    <strong>Proof:</strong> An equivalent statement to <a href="#lie">2.3</a>  is: <strong> For any invariant representation $V$ of $\pi(\gf)$, there exists a vector $v\in V$ which is an eigenvector of each linear transformation in $\pi(\gf)$.
+    </strong>
+</p>
+
+<p>
+    To prove that the two statements are equivalent: If the first statement is true, it implies any $v$ that spans the subspace $V_{n-1}$ (one before final; $V_{n}=0$) should satisfy $\pi(g)(v) \in V_{n-1}, \forall g \in \gf$, demonstrating the second.  
+</p>
+
+<p>
+    Conversely, choose any representation $V_n$ and assume that the second statement is true. Then, there exists $v\in V$ such that $\pi(g)(v) \in V$. Span $v$ to produce $V_{n-1}$ and construct a quotient space $V/V_{n-1}$. This quotient space, being an invariant representation of $\pi(\gf)$ should also have a common eigenvector, based on the second statement. Thus, we can construct flags: $V_n, V_n/V_{n-1}, \ldots, $ satisfying the first condition.
+</p>
+
+<p>
+    Now, to prove the second assertion, we inductively assume that solvable lie algebras allow for common eigenvectors for all $\gf'$ with $\dim\ \gf' \lt \dim\ \gf$, construct a sub-algebra from $\gf$ and apply this inductive rule, and expand the results for $\gf$ itself.
+</p>
+<p>
+    <strong>Step 1:</strong> finding an ideal $\mathfrak{h}$ of codimension 1 in $\gf$. As $\gf$ is solvable, $D\gf = [\gf, \gf] \subset \gf$. Then, $\gf/D\gf$ is a quotient space of abelian lie algebra. If we take $v \in \gf / D\gf$, and construct a projector $p$ of $v$, the kernel of this projector would also be a ideal with co-dimension 1 on $\gf / D \gf$. By the law of ideal correspondence, this produces an ideal $\mathfrak{h} \subset \gf$ of codimension 1 in $\gf$. 
+</p>
+
+<p>
+    <strong>Step 2:</strong> We next state that there exists some linear functional $\lambda \in \mathfrak{h}^*$ of the ideal $\mathfrak{h}$ such that $V_\lambda = \{v \in V| X(v) = \lambda(X)v, X \in \mathfrak{h}\}$ is non-empty. This is through the induction rule as $\dim\ \mathfrak{h} \lt \dim \gf$.  
+</p>
+
+<p>
+    <strong>Step 3:</strong>We then state that $V_\lambda$ is $\gf$-invariant. 
+    Let $Y\in \gf, v\in V_\lambda$. Let $v_0=v, v_1=Yv_0, v_2=Yv_1, \ldots $ be a series and let $\ell \in \mathbb{N}_0$ be the largest integer where $v_0, \ldots, v_\ell$ is linearly independent. Then, 
+    let $U = \mathrm{span}\{v_i|i\geq 0\} = \mathrm{span}\{v_0, \ldots v_\ell\}$. We know that, $Xv_0=\lambda(X) v_0$ $\forall X \in \mathfrak{h}$. If we multiply any $v_{n+1}$ by $X$;
+    \begin{align}
+        X v_{n+1} = XY v_{n} &= YX v_{n} + [X, Y]v_n \label{eq:20}
+    \end{align} 
+    Inductively, if we assume that for all $n' \lt n+1$, $v_{n}$ is invariant to $\mathfrak{h}$ (i.e. $Xv_n = \sum_{i=0}^n a_{i,n,X}v_i$) and $a_{n,n,X}=\lambda(X)$, equation \ref{eq:20} becomes:
+    \begin{align}
+     X v_{n+1} &= Y \sum_{i=0}^n a_{i, n, X} v_i + \sum_{i=0}^n a_{i, n, [X, Y]} \\
+     &= a_{0, n, [X, Y]} v_0 + \sum_{i=1}^n (a_{i-1, n, X} + a_{i, n, [X,Y]})v_i + \lambda(X)v_{n+1}
+    \end{align}
+    inductively proving that the assertion is true for $v_{n+1}$ as well.
+
+    Thus for the subspace $U$, all operators on $\mathfrak{h}$ act as an upper triangular matrix (as $Xv_n$ is a linear sum of $v_0, \ldots, v_n$). The trace of any $X \in \mathfrak{h}$ in $U$ (or $trace(\pi(X)|_U)$) is $\dim(U)\lambda(X)$. But, as $[X, Y]\in \mathfrak{h}$, we get that $trace(\pi([X, Y])|_U = \dim(U)\lambda([X, Y])$). Since the trace of a commutator $AB-BA$ is always 0, we get $\lambda([X, Y])=0$. Thus, $\forall v \in V_{\lambda}$
+    \begin{align}
+    X(Yv) &= YXv + [X, Y]v = \lambda(X)Yv + \lambda([X, Y])v  \\
+    &= \lambda(X)Yv \in V_\lambda  
+    \end{align}
+    This proves that $V_\lambda$ is $\gf$-invariant. 
+</p>
+
+<p><strong>Step 4:</strong> Finally, combining the previous steps, we can write $\gf = \mathfrak{h} + L$, L being the span of an element in $\gf/D\gf$ described in <strong>Step 1</strong>. Then, as $V_\lambda$ is also invariant in $L$, if we select any non-zero element $X_L \in L$, $X_LV_\lambda \subseteq V_\lambda$. Thus we can find a $v \in V_\lambda$ which is an eigenvector of $L$. Since, $v$, being a member of $V_\lambda$ is an eigenvector of all elements in $\mathfrak{h}$, $v$ is a common eigenvector of $\gf$. QED 
+</p>
+
+
+
+<h3>Casimir Operators</h3>
+The center $Z(U(\gf))$ of $U(\gf)$ can be identified with the centralizer $\gf$ in $U(\gf)$. For a finite-dimensional semisimple Lie algebra (where semisimple indicates that it is a direct sum of simple lie algebras), the casimir operators then form a <strong>basis of $Z(U(\gf))$</strong>. 
+<p>
+What are semisimple Lie algebras? They are the lie algebras that aren't solvable; where solvability indicates that the series $\gf_0=\gf, \gf_1=[\gf, \gf], \gf_2=[\gf_1, \gf_1], \ldots$ eventually returns a zero-algebra.
+</p>
+
+<lemma>If a Lie algebra is semi-simple, it should have a non-degenerate Killing form</lemma>
+We denote a Killing form $K(x, y), x, y\in \gf$ as 
+\begin{align}
+K(x, y) &= trace(ad(x). ad(y)) & ad(x)(y) = [x, y] \\
+ad(e_i) &= ad_{ij}^k e_k \otimes w^j \\
+K(x, y) &= trace(x^{i_1}ad_{i_1j_1}^{k_1} y^{i_2}ad_{i_2j_2}^{j_1} e_{k_1} \otimes  w^{j_2}) \\
+&= x^{i_1}y^{i_2} ad^{k_1}_{i_1j_1} ad^{j_1}_{i_2k_1}
+\end{align}
+Where $e_i$ represent the basis of $\gf$.
+
+<p><strong>Proof:</strong> From the <a href="#lie">Lie theorem (2.3)</a>, any solvable Lie algebra representation $V$ can be decomposed into flags $V=V_0 \supset \ldots \supset V_n$, with codimension $i$ in V. This has direct implication on the mapping $ad: \gf \rightarrow \mathfrak{gl}(\gf, K)$, with $K$ being the base field, as $ad_g$, for all $g \in \gf$, can be representated as an upper triangular matrix. Consequently, given two $g_1, g_2 \in \gf$, $ad_{g_1} ad_{g_2}$ becomes a product of two upper-diagonal matrices and thus becomes diagonal itself. However, it is easy to verify that $ad_{g_1}ad_{g_2} - ad_{g_2} ad_{g_1}$ is strictly upper diagonal (all diagonal elements are zero). Thus, the Killing form $K(x, y)$ has degeneracy, when $x \in D\gf = [\gf,\gf]$. 
+    In other words
+    \begin{align}
+    K([x, y], z) &= trace(ad_{[x, y]}\circ ad_z) = 0 & \forall z \in \gf 
+    \end{align}
+    </p>
+    </body>
+    
+<lemma>For a finite banach space $X$, a linear operator $A:X\rightarrow X$ is such that $Range(A) \subset X$. Suppose for a basis $e_i \in X - Range(A)$. Then, $w^i(Ax)=0, w^i(e_j)=\delta_{ij}$, $\forall x \in X$ </lemma>
+
+<p>
+    <strong>Proof:</strong> Since $X$ is finite, we can divide it as $X=Range(A)\oplus Range(A)^{\perp}$. Make $e_1, \ldots, e_{m}$ basis of $Range(A)$ and for $Range(A)^{\perp}$ choose the basis $h_1, \ldots, h_{m}$. No complications arise when finding a Hamel basis of a finite Banach space. 
+    Then, if $Ax = \sum_i c_i h_i + \sum_j d_j e_j$ with at least one non-zero $c_i$, then choosing $x'=x-\sum_j d_j v_j$, where $A(v_j)=e_j$, we get $Ax' \in Range(A)^{\perp}$, a contradiction. 
+</p>
+
 
 </html>
