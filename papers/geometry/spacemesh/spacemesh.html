@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> SpaceMesh </title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+    <script>
+    window.MathJax = {
+        tex: {
+        packages: {'[+]': ['bm']},
+        tags: 'ams',
+        inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+        displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+
+        macros: {
+            Rb: "\\mathbb{R}",
+            gf: "\\mathfrak{g}",
+            su: "\\mathfrak{su}",
+            sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+            Ac: "\\mathcal{A}",
+            Mc: "\\mathcal{M}",
+            Vc: "\\mathcal{V}",
+            Fc: "\\mathcal{F}",
+            Ec: "\\mathcal{E}",
+            Gc: "\\mathcal{G}"
+        }
+        },
+        options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        lemma {
+            display: block;            /* behaves like <h3> */
+            margin-top: 1em;           /* space before, like a line break */
+            font-weight: bold;         /* match heading style */
+            font-size: 1.1em;         /* approx h3 size (browser default) */
+        }
+
+    /* Define how lemma is displayed anywhere you use <lemma> */
+        lemma:before {
+            counter-increment: equation;
+            content: "Lemma " counter(heading) "." counter(equation) ": ";
+            font-weight: bold;
+        }
+
+        theorem {
+            display: block;            /* behaves like <h3> */
+            margin-top: 1em;           /* space before, like a line break */
+            font-weight: bold;         /* match heading style */
+            font-size: 1.1em;         /* approx h3 size (browser default) */
+        }
+
+    /* Define how lemma is displayed anywhere you use <lemma> */
+        theorem:before {
+            counter-increment: equation;
+            content: "Theorem " counter(heading) "." counter(equation) ": ";
+            font-weight: bold;
+        }
+
+        body {
+            counter-reset: heading equation;
+            font-family: 'Poppins', sans-serif;
+        } 
+
+        h2:before {
+            counter-increment: heading;
+            content: counter(heading) " ";
+            counter-reset: subheading equation;
+        }
+
+        h3:before {
+            content: counter(heading) "." counter(subheading) " ";
+            counter-increment: subheading;
+        }
+    </style>
+
+    <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+</head>
+<body>
+    \( \newcommand{\bm}[1]{\boldsymbol{\mathbf{#1}}} \)
+<h1>SpaceMesh: A Continuous Representation for
+    Learning Manifold Surface Meshes (Shen et al, Feb 2025)</h1>
+
+<h2>Introduction and objectives</h2>
+<ol>
+    <li>The chief problem we have here is the dichotomy: 
+        <ol type="a">
+            <li>
+                mesh are very useful in representing objects of any arbitrary topology (which accounts for its essential role in graphics)
+            </li>
+            <li>
+                mesh are however very difficult to generate <em>through ML</em> since it is composed of many continuous (i.e. 3D location of vertices) and 
+                discrete (linkage between vertices) components. 
+            </li>
+        </ol> 
+    </li>
+    <li>
+        This paper says it accomplishes two things:
+        <ol type="a">
+            <li> 
+                Construct a mesh representation that is built on complex embedding (3D space) that guarantees "manifold output" (i.e. the output that is locally smooth as can be) $\rightarrow$ <span style="color:blue; font-size: 1.2em;">continuous</span>
+            </li>
+            <li>
+                While also ensuring complex polygonal connectivity $\rightarrow$ <span style="color:blue; font-size: 1.2em;">discrete</span>
+            </li>
+        </ol>
+    </li>
+</ol>
+
+<h2>Representation </h2>
+<h3>Basic primer</h3>
+<ol>
+    <li> <strong style="font-size:1.1em;">Formal definition:</strong> A surface mesh can be represented as $\Mc=(\Vc, \Ec, \Fc)$, with $\Vc$ vertices, $\Ec$ edges and $\Fc$ faces. $v \in \Vc$ has position $p_v \in \Rb^3$. A face $f \in \Fc$ should be a cyclic collection $f = (v_0, v_1, \ldots, v_n), n \geq 3$ where it is implicitly assumed that $(v_i, v_{i+1})$ are connected by an edge, including the closing pair $(v_0, v_n)$. </li>
+    <li><em>Goal is not to generate meshes that are just soup of faces, but which have consistent and coherent network connectivity</em> $\rightarrow$ <span style="font-size: 1.2em; color:blue">oriented and manifoldness</span></li>
+    <li id="definition_manifoldness">
+        <strong style="font-size:1.1em;">Definition of manifoldness</strong> 
+        <ol type="a">
+            <li><em>edge-manifoldness</em> each edge has exactly two faces</li>
+            <li><em>vertex-manifoldness</em> the faces incident on a vertex form a single edge connected component homeomorphic to a disk
+            <div style="text-align: center;">
+                <img src="vertex-manifoldness.png"/>
+            </div>
+            </li>
+            <li>In addition, all the faces are outwardly oriented in a 
+                right-hand rule.</li>
+            <li>Being very considerate of this orientation, the authors describe edges in terms of halfedges; these store two references: a <em>twin</em> halfedge $\rightarrow$ mirror halfedge belonging to the neighboring face, 
+            <em>next</em> halfedge, next halfedge, counterclockwise to the same face.
+            <div style="text-align: center;">
+                <img src="next-operation.png"/>
+            </div>
+            This results in <em>next</em> and <em>twin</em> being group operations, with $twin(twin(h))=h$.
+            </li>
+        </ol>
+    </li>
+
+    <li>
+        <strong style="font-size: 1.1em;">Edge Representation:</strong> This half-edge formulation is very powerful, and enables the modelling of mesh simply as a graph $\Gc = (\Vc, \Ec)$. This can be extended to capture manifold mesh structure through half-edge connectivity. The authors first associate an <em>adjacency embedding $x_v \in \Rb^k$</em> to each vertex and use a distance between these adjacency embeddings to construct edges between them:
+        \begin{align}
+         \Ec :=& \{(i, j); d(x_i, x_j) \leq \tau \} 
+        \end{align}
+
+        So, each vertex has two features: adjacency features $x_v \in \Rb^k$ and 3D coordinate $p_v \in \Rb^3$.
+    </li>
+    <li>
+        <strong style="font-size: 1.1em;">Choice of distance $d$ matters</strong> 
+        <ol>
+            <li>Euclidean distance $\rightarrow$ <span style="font-size: 1.2em; color: blue">ineffective</span>
+            </li>
+            <li>
+                Spacetime distance (Law and Lucas 2023) $\rightarrow$ <span style="font-size: 1.2em; color: blue">very effective</span>
+
+                What spacetime distance does is: it sees a representation $x_k \in \Rb^k$ as a composition of space $x_k^s \in \Rb^{k_s}$ and time $x_t^s \in \Rb^{k_t}$ subspaces: $x_k=x_k^s \circ x_t^s$. Then, the spacetime distance $d^{sp}$ becomes
+                \begin{align}
+                 d^{sp}(x_i, x_j) &:= \|x_i^s - x_j^s\|_2^2 - \|x_i^t - x_j^t\|^2_2
+                \end{align}
+            </li>
+        </ol>
+    </li>
+    <li>
+        <strong style="font-size:1.1em;">Loss function</strong>
+        <p>
+            The representations are learned using the loss function:
+            \begin{align}
+                L = \sum_{i,j \in \Ec_{gt}} \log(\sigma(d^{sp}(x_i, x_j) - \tau)) + \lambda \sum_{i, j \not\in \Ec_{gt}} \log (\sigma(\tau - d(x_i, x_j)))
+            \end{align} 
+
+            Thus, if $i, j$ belongs to the ground truth mesh, the los tries to minimize the loss, else it tries to pull them apart.
+        </p>
+    </li>
+    <li>
+        <strong style="font-size: 1.1em;">Converting $\Gc$ to Faces</strong> The final step uses the acquired $\Gc = (\Vc, \Ec)$ from the earlier steps to construct faces that satisfy the conditions outlined in <a href="#definition_manifoldness">3</a>.
+
+        <ol type="a">
+            <li>Divide each edge $e_{ij} \in \Ec$ into half-edges $h_{ij}, h_{ji}$.
+            </li>
+
+            <li>Lets look at node 3 in this image:
+                <div style="text-align: center;">
+                 <img src="ordering.png"/>
+                </div>
+                The $next_3$ operator that links one half-edge with another should behave the following way:
+                \begin{align}
+                    \begin{matrix}
+                    next_3(h_{23}) = h_{37} & next_3(h_{73}) = h_{35} & next_3(h_{53}) = h_{31} \\
+                    next_3(h_{13}) = h_{36} & next_3(h_{63}) = h_{34} & next_3(h_{43}) = h_{32}
+                    \end{matrix} 
+                \end{align}
+
+                So the function of the $next_3$ fully depends on the proper ordering of nodes connected to the node `3`. So the goal is to learn this ordering.
+            </li>
+
+            <li>
+                To determine this local cyclic ordering, for each vertex, define a triplet of, what the authors say, <em>continuous permutation features</em>: $y^{root}, y^{prev}, y^{next} \in \Rb^{k^p}$. Then, for each vertex $i \in \Vc$, with degree $D$, for $j, k \in \mathcal{N}(i)$, construct a matrix $\bm{\Phi}^i \in \Rb^{D \times D}$, where
+                \begin{align}
+                \bm{\Phi}^i_{jk} &:= \exp{(F(y_i^{root}, y_j^{prev}, y_k^{next}))} 
+                \end{align}
+                They finally perform the Sinkhorn iteration to obtain a doubly stochastic matrix:
+                \begin{align}
+                    \bm{\Phi}^{i}_{(n+1)} &= D^{(1)}_{(n)}\bm{\Phi}_{(n)} D^{(2)}_{(n)} & D^{(1)}_{(n)}, D^{(2)}_{(n)} \text{ both positive diagonal}.  \\
+                    \bm{\bar{\Phi}}^i &= \bm{\Phi}^i_{\infty}    
+                \end{align}
+                Where at each iteration, $D_{(n)}^{1}$ and $D_{(n)}^{2}$ are constructed to turn a matrix into row and column stochastic matrices respectively.
+            </li>
+
+            \(\newcommand{\bphi}{\bm{\bar{\Phi}}}\)
+            <li>
+                These $root, prev$ and $next$ representations are trained by conditioning the loss on the ground truth permutation matrices using BCE Loss
+                \begin{align}
+                    L_{perm} = \sum_{i, j, k \in N_{gt}} -\log(\bphi^i_{jk}) 
+                \end{align}
+                Where the triplets are chosen such that $next_i(h_{ji})=h_{ik}$.
+            </li>
+
+            <li><strong style="font-size: 1.1em;">Extracting Meshes</strong> It is a little unclear to me what they do here. They say that the inferred $\bphi^i$ is used to find the permutation order. That includes 
+            <ol type="a">
+                <li> Use $-\bphi^i$  to solve the classic lowest score matching problem, to find the optimal permutation</li>
+                <li>This optimal permutation might class with the cyclic property of the $next$ operator. If that happens, they revert back to the greedy method, where they start with an entry and repeatedly take the lowest costing permute, while satisfying the condition </li>
+                \begin{align}
+                 k = permute_i(j); next(h_{ji}) = h_{ik} 
+                \end{align}
+            </ol>
+                
+            </li>
+
+        </ol>
+
+
+    </li>
+</ol>
+
+</body>
+</html>

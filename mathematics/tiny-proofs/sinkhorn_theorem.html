@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title> HEADER </title>
+    <title> Sinkhorn's Theorem </title>
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script>
@@ -75,5 +75,34 @@
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
     </script>
 </head>
-<body></body>
+<body>
+    <h1>Sinkhorn Theorem Proof</h1>
+<h2>Theorem statement</h2>
+<theorem>If a is an $n\times n$ matrix with strictly positive elements, then there exist diagonal matrices $D_1$ and $D_2$ with strictly positive diagonal elements such that $D_1AD_2$ is doubly stochastic</theorem>
+
+<strong style="font-size: 1.2em;">Proof:</strong> 
+Consider $A \in \Rb_+^{n\times n}$ a strictly positive matrix, and an optimization problem
+
+
+
+<!--- Assume $A \in \Rb_+^{n\times n}$ a strictly positive matrix. Then, let us construct a series $A=A_0, A_1, A_2, \ldots$ such that 
+\begin{align}
+ A'_{n} &= A_{n}D_n^{(1)} & \text{s.t. } A'_{n} \text{ is column stochastic and }D_n^{(1)} \text{ diagonal}. \\
+ A_{n+1}&= D_n^{(2)} A'_n & \text{s.t. } A_{n+1} \text{ is row stochastic and }D_n^{(2)} \text{ diagonal}.
+\end{align}
+
+Then, we can write $A_{n+1}$ in terms of $A_{n}$ as:
+\begin{align}
+A_{n+1} &= D_n^{(2)} A_n D_n^{(1)} \\
+vec(A_{n+1}) &= (D_n^{(1)} \otimes D_n^{(2)}) vec(A_n) = D^{kron}_n vec(A_n) \label{eq:4}
+\end{align}
+Applying \ref{eq:4} iteratively gives
+\begin{align}
+     vec(A_n) = (D^{kron}_n D^{kron}_n \ldots D^{kron}_1)vec(A_1)
+\end{align} 
+
+Note that all $D_k^{kron}$ are diagonal with eigenvalues $\leq 1$. So, if there exist an infinite series $\{D_{i_k}^{kron}\}_{k=1}^{\infty}$ that has eigenvalues less than $1-\epsilon, \epsilon >0$, then $vec(A_n) \rightarrow 0$. But, that is a contradiction as $vec(A_n)$ never approaches 0. This shows that, $ \forall \epsilon>0$ after some finite $k$, for all $n>k$, $D_{n}^{kron}$ has eigenvalues $\gt 1-\epsilon$, essentially proving the convergence of the series $\{A_n\}$.
+-->
+
+</body>
 </html>
