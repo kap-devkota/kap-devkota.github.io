@@ -1,30 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Preamble    </title>
+    <title> HEADER </title>
     <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script>
     window.MathJax = {
         tex: {
         tags: 'ams',
         inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
-        displayMath: [['$$', '$$'], ['\\[', '\\]']] // block math
+        displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+
+        macros: {
+            Rb: "\\mathbb{R}",
+            gf: "\\mathfrak{g}",
+            su: "\\mathfrak{su}",
+            sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+            Ac: "\\mathcal{A}"
+        }
         },
         options: {
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
+        },
     };
     </script>
 
     <style>
+        lemma {
+            display: block;            /* behaves like <h3> */
+            margin-top: 1em;           /* space before, like a line break */
+            font-weight: bold;         /* match heading style */
+            font-size: 1.1em;         /* approx h3 size (browser default) */
+        }
+
+    /* Define how lemma is displayed anywhere you use <lemma> */
+        lemma:before {
+            counter-increment: equation;
+            content: "Lemma " counter(heading) "." counter(equation) ": ";
+            font-weight: bold;
+        }
+
+        theorem {
+            display: block;            /* behaves like <h3> */
+            margin-top: 1em;           /* space before, like a line break */
+            font-weight: bold;         /* match heading style */
+            font-size: 1.1em;         /* approx h3 size (browser default) */
+        }
+
+    /* Define how lemma is displayed anywhere you use <lemma> */
+        theorem:before {
+            counter-increment: equation;
+            content: "Theorem " counter(heading) "." counter(equation) ": ";
+            font-weight: bold;
+        }
+
         body {
-            counter-reset: heading;
+            counter-reset: heading equation;
         } 
 
         h2:before {
             counter-increment: heading;
             content: counter(heading) " ";
-            counter-reset: subheading;
+            counter-reset: subheading equation;
         }
 
         h3:before {
