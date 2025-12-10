@@ -1,79 +1,149 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title> HEADER </title>
-    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
-    <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script>
-    window.MathJax = {
-        tex: {
-        tags: 'ams',
-        inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
-        displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+    <head>
+        <title> HEADER </title>
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+        <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+        window.MathJax = {
+            tex: {
+            tags: 'ams',
+            inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+            displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
 
-        macros: {
-            Rb: "\\mathbb{R}",
-            gf: "\\mathfrak{g}",
-            su: "\\mathfrak{su}",
-            sl: "\\mathfrak{sl}(2, \\mathbb{C})",
-            Ac: "\\mathcal{A}"
-        }
-        },
-        options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        },
-    };
-    </script>
+            macros: {
+                Rb: "\\mathbb{R}",
+                gf: "\\mathfrak{g}",
+                su: "\\mathfrak{su}",
+                sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+                Ac: "\\mathcal{A}"
+            }
+            },
+            options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+        };
 
-    <style>
-        lemma {
-            display: block;            /* behaves like <h3> */
-            margin-top: 1em;           /* space before, like a line break */
-            font-weight: bold;         /* match heading style */
-            font-size: 1.1em;         /* approx h3 size (browser default) */
-        }
+        document.addEventListener("DOMContentLoaded", async () => {
+            const refSection = document.getElementById("reference-section");
+            const refList = document.getElementById("references");
 
-    /* Define how lemma is displayed anywhere you use <lemma> */
-        lemma:before {
-            counter-increment: equation;
-            content: "Lemma " counter(heading) "." counter(equation) ": ";
-            font-weight: bold;
-        }
+            let bib = null;
 
-        theorem {
-            display: block;            /* behaves like <h3> */
-            margin-top: 1em;           /* space before, like a line break */
-            font-weight: bold;         /* match heading style */
-            font-size: 1.1em;         /* approx h3 size (browser default) */
-        }
+            // -------------------------
+            // 1. Try loading bibliography.json
+            // -------------------------
+            try {
+                const response = await fetch("bibliography.json");
+                if (!response.ok) throw new Error("File not found");
+                bib = await response.json();
+            } catch (err) {
+                // If file missing → hide section entirely
+                refSection.style.display = "none";
+                return;
+            }
 
-    /* Define how lemma is displayed anywhere you use <lemma> */
-        theorem:before {
-            counter-increment: equation;
-            content: "Theorem " counter(heading) "." counter(equation) ": ";
-            font-weight: bold;
-        }
+            // -------------------------
+            // 2. Process citations
+            // -------------------------
+            let counter = 1;
+            const refNumbers = {};
+            let citationCount = 0;
 
-        body {
-            counter-reset: heading equation;
-            font-family: 'Poppins', sans-serif;
-        } 
+            document.querySelectorAll("cite").forEach(c => {
+                const key = c.getAttribute("key");
 
-        h2:before {
-            counter-increment: heading;
-            content: counter(heading) " ";
-            counter-reset: subheading equation;
-        }
+                // If this key not in bibliography → skip it quietly
+                if (!bib || !(key in bib)) {
+                    c.innerHTML = "[?]";
+                    return;
+                }
 
-        h3:before {
-            content: counter(heading) "." counter(subheading) " ";
-            counter-increment: subheading;
-        }
-    </style>
+                citationCount++;
+                if (!(key in refNumbers)) refNumbers[key] = counter++;
+                c.innerHTML = `[${refNumbers[key]}]`;
+                c.dataset.ref = key;
+            });
 
-    <script type="text/javascript" id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-    </script>
-</head>
-<body></body>
+            // -------------------------
+            // 3. If no citations → hide the entire section
+            // -------------------------
+            if (citationCount === 0) {
+                refSection.style.display = "none";
+                return;
+            }
+
+            // -------------------------
+            // 4. Build bibliography section
+            // -------------------------
+            for (const key in refNumbers) {
+                const n = refNumbers[key];
+                const li = document.createElement("li");
+                li.innerHTML = `<span>[${n}]</span> ${bib[key]}`;
+                refList.appendChild(li);
+            }
+
+            // Section stays visible only if citations exist
+            });
+        </script>
+
+        <style>
+            lemma {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            lemma:before {
+                counter-increment: equation;
+                content: "Lemma " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            theorem {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            theorem:before {
+                counter-increment: equation;
+                content: "Theorem " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            body {
+                counter-reset: heading equation;
+                font-family: 'Poppins', sans-serif;
+            } 
+
+            h2:before {
+                counter-increment: heading;
+                content: counter(heading) " ";
+                counter-reset: subheading equation;
+            }
+
+            h3:before {
+                content: counter(heading) "." counter(subheading) " ";
+                counter-increment: subheading;
+            }
+        </style>
+
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+        </script>
+    </head>
+
+    <body>  
+
+
+        <div id="reference-section">
+            <h2>References</h2>
+            <ol id="references"></ol>
+        </div>
+    </body>
 </html>

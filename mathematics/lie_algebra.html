@@ -2,6 +2,7 @@
 <html>
 <head>
     <title> Lie Groups & Lie Algebra</title>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script>
     window.MathJax = {
@@ -55,6 +56,7 @@
 
         body {
             counter-reset: heading equation;
+            font-family: "Times New Roman", Times, serif;
         } 
 
         h2:before {
@@ -247,5 +249,8 @@ Where $e_i$ represent the basis of $\gf$.
     Then, if $Ax = \sum_i c_i h_i + \sum_j d_j e_j$ with at least one non-zero $c_i$, then choosing $x'=x-\sum_j d_j v_j$, where $A(v_j)=e_j$, we get $Ax' \in Range(A)^{\perp}$, a contradiction. 
 </p>
 
-
+<h3>Casimir Operators</h3>
+<p>
+    The center $Z(U(\gf)) \subset U(\gf)$ consists of the elements that commutes with all of $U(\gf)$. Since $\gf \in U(\gf)$, the elements of $Z(U(\gf))$ should commute with $\gf$ as well. For any finite-dimensional semi-simple Lie algebra, Casimir operators are distinguished basis of the center $Z(U(\gf))$.
+</p>
 </html>
