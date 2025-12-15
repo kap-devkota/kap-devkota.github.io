@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> FALCON </title>
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+        <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+        window.MathJax = {
+            tex: {
+            tags: 'ams',
+            inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+            displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+
+            macros: {
+                Rb: "\\mathbb{R}",
+                gf: "\\mathfrak{g}",
+                su: "\\mathfrak{su}",
+                sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+                Ac: "\\mathcal{A}"
+            }
+            },
+            options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const refSection = document.getElementById("reference-section");
+            const refList = document.getElementById("references");
+
+            let bib = null;
+
+            // -------------------------
+            // 1. Try loading bibliography.json
+            // -------------------------
+            try {
+                const response = await fetch("bibliography.json");
+                if (!response.ok) throw new Error("File not found");
+                bib = await response.json();
+            } catch (err) {
+                // If file missing → hide section entirely
+                refSection.style.display = "none";
+                return;
+            }
+
+            // -------------------------
+            // 2. Process citations
+            // -------------------------
+            let counter = 1;
+            const refNumbers = {};
+            let citationCount = 0;
+
+            document.querySelectorAll("cite").forEach(c => {
+                const key = c.getAttribute("key");
+
+                // If this key not in bibliography → skip it quietly
+                if (!bib || !(key in bib)) {
+                    c.innerHTML = "[?]";
+                    return;
+                }
+
+                citationCount++;
+                if (!(key in refNumbers)) refNumbers[key] = counter++;
+                c.innerHTML = `[${refNumbers[key]}]`;
+                c.dataset.ref = key;
+            });
+
+            // -------------------------
+            // 3. If no citations → hide the entire section
+            // -------------------------
+            if (citationCount === 0) {
+                refSection.style.display = "none";
+                return;
+            }
+
+            // -------------------------
+            // 4. Build bibliography section
+            // -------------------------
+            for (const key in refNumbers) {
+                const n = refNumbers[key];
+                console.log(bib[key])
+                const li = document.createElement("p");
+                li.innerHTML = `<span>[${n}]</span> ${bib[key]}`;
+                refList.appendChild(li);
+            }
+
+            // Section stays visible only if citations exist
+            });
+        </script>
+
+        <style>
+            lemma {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            lemma:before {
+                counter-increment: equation;
+                content: "Lemma " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            theorem {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            theorem:before {
+                counter-increment: equation;
+                content: "Theorem " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            body {
+                counter-reset: heading equation;
+                font-family: 'Poppins', sans-serif;
+            } 
+
+            h2:before {
+                counter-increment: heading;
+                content: counter(heading) " ";
+                counter-reset: subheading equation;
+            }
+
+            h3:before {
+                content: counter(heading) "." counter(subheading) " ";
+                counter-increment: subheading;
+            }
+
+            h2.no-ref::before {
+               counter-increment: none;
+               content: "";
+            }
+        </style>
+
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+        </script>
+    </head>
+
+    <body>  
+        <h1>FALCON: Few-step accurate Likelihoods for continuous flows</h1>
+
+        <h2>Notes:</h2>
+
+        <ol>
+            <li> Goal is to generate statistically independent samples from a target Boltzmann distribution $p_{target}$ with partition function $\mathcal{Z}$ defined over $\Rb^d$. 
+
+                \begin{align}
+                p_{target}(x) &\propto \exp(-\mathcal{E}(x))  & \mathcal{Z} = \int_{\Rb^d} \exp (-\mathcal{E}(x)) dx
+                \end{align}
+                With $\mathcal{E}$ being energy. No additional requirement for $\mathcal{E}$ to be differentiable. 
+            </li>
+
+            <li> 
+                <span style="font-size: 1.1em;"><strong>Boltzmann generators </strong><cite key="bg_sampler"></cite>
+                </span> To find a Monte-Carlo estimate of any observable $o(x), x \propto p_{target}$. The SNIS steps are:
+                <ol type="a">
+                    <li>
+                        Train a deep model on a dataset $\mathcal{D}$ that is as close to the $p_{target}$ as possible, returning $p^{1}_\theta$ 
+                    </li>
+                    <li>
+                        Draw $K$ samples $x^i \sim p_1^\theta$ from this trained model. 
+                    </li>
+                    <li>
+                        For each of the $k$ samples, obtain the un-normalized importance weights such that 
+                        \begin{align}
+                            w(x^i) &= \frac{\exp(-\mathcal{E}(x^i))}{p_1^\theta(x^i)} &\text{where, } p_{target}(x) \propto \exp{-\mathcal{E}(x)}
+                        \end{align}
+                    </li>
+                    <li>
+                        The predicted observable $\mathbb{E}[o(x)]$ thus becomes
+                        \begin{align} 
+                        \mathbb{E}[o(x)] &\approx \frac{\sum_{i=1}^K w(x^i) o(x^i)}{\sum_{i=1}^K w(x^i)} \label{snis}
+                        \end{align}
+                    </li>
+                </ol>
+            </li>
+
+            <li>
+                <span style="font-size: 1.1em;"><strong>Flow matching</strong></span>
+                <ol type="a">
+                    <li> Continuity equation (See <a href="../general-flow-matching.html">Flow matching</a>): 
+                        \begin{align}
+                            \frac{d p_t}{dt} &= - \nabla \cdot (p_tu_t) \\ 
+                            \frac{d p_t}{dt} &= - p_t \nabla \cdot u_t - u_t \cdot \nabla p_t \\ 
+                            \frac{\log p_t}{dt} &= -\nabla \cdot u_t - u_t \cdot \nabla \log p_t \\
+                            \therefore \log p_s &= \int_0^s -tr (\partial_i u_{t}^j) dt - \int_0^s u_t \cdot \nabla \log p_t dt
+                        \end{align}
+                        Note: The paper does not have the second term. Need to investigate further. 
+                    </li>
+                    <li>Flow equation 
+                        \begin{align}
+                            x_s = \int_0^s v_\theta(x_t, t) dt 
+                        \end{align}
+                        Note: The paper has a typo on equation 3 ($x_t$ should be $x_s$). 
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <span style="font-size:1.1em"><strong>Consistency/Few step flow models<cite key="consistency"></cite></strong></span>
+                <ol type="a">
+                    <li>Used for speeding up the flow matching processes
+                    </li>
+                    <li>The model is augmented with additional input $t, u_\theta(x_s, s) \Rightarrow u_\theta(x_s, s,t)$, and $u_\theta$ is tasked with predicting the average velocity between $s$ and $t$. </li>
+
+                    <li> Minimization of the loss: 
+                        \begin{align}
+                            \mathbb{E}_{s,t,x_s} \left[w(s, t) \left\|u_\theta(x_s, s,t) - \frac{1}{t-s} \int_s^t v(x_\tau, \tau) d\tau\right\|^2\right]
+                        \end{align}
+
+                    </li>
+                </ol>
+            </li>
+
+            <li><span style="font-size: 1.1em;"><strong>FALCON</strong></span>
+                <ol type="a">
+                    <li>
+                        Flow maps are not necessarily invertible.
+                    </li>
+
+                    <li>
+                        FALCON learns invertible map from $p_0$ to $p_1$ in small number of steps
+                    </li>
+
+                    <li>
+                        Define $X_v(x_s, s, t)$ as the transformation using the v.f. $v$ on $x_s$ at time $s$ upto the time $t$. 
+                        \begin{align}
+                            X_v(x_s, s, t) = x_s + \int_s^t v(x_\tau, \tau) d\tau  
+                        \end{align}  
+                    </li>
+                    <li>
+                        Add an inversion loss to the original flow matching loss such that 
+                        \begin{align}
+                            \mathcal{L}_{inv}(\theta) &= \mathbb{E}_{s,t,x_s} \|x_s - X_u(X_u(x_s, s, t), t, s) \|^2 
+                        \end{align}
+                    </li>
+
+                    <li>
+                        Since $x_t=X_v(x_s, s, t)=\phi_{t,s}(x_s)$ is a transformation map, using <a href="../general-flow-matching.html">Flow matching; equation 7</a>, given $P_s, P_t$ probability measures at time $s, t$ respectively, we get 
+                        \begin{align}
+                            P_s(vol_{s}) &= P_t(\phi_{t,s} vol_s) \\
+                            p_s(x_s)     &= P_t\left(vol_t \det\left(\partial_i\phi_{t, s}^j\right)\right) \\
+                            p_s(x_s) &= p_t(x_t) \det(\partial_i \phi_{t,s}^j) \\
+
+                            \therefore \log p_t(x_t) &= \log p_s(x_s) - \log\left( \det (\partial_i \phi_{t,s}^j) \right)  \label{prob}
+                        \end{align} 
+                    </li>
+                    <li>
+                        The training of FALCON involves three losses: $\mathcal{L}_{avg}$ (consistency loss), $\mathcal{L}_{cfm}$ (standard flow matching loss) and $\mathcal{L}_{inv}$ (FALCON introduced inverse loss)
+                    </li>
+                </ol>
+            </li>
+
+            <li>
+                <span style="font-size: 1.1em;"><strong>Conclusion and Notes on usage</strong></span>
+                <ol type="a">
+                    <li> Acquire dataset $\mathcal{D}$ from Boltzmann distribution $p_{target}$</li>
+                    <li> Use the three losses described in <strong style="font-size: 1.1em; color: blue;">5f</strong> to obtain a flow matching model. 
+                    </li>
+                    <li>
+                        Use this Flow matching model to generate candidates $\{x^i\}$. Additionally, for each sample, use (\ref{prob}), given the starting distribution $p_0$ to estimate $p_\theta^1(x^i)$. 
+                    </li>
+                    <li>
+                        Use the Self-normalized importance sampling (SNIS) (\ref{snis}) if applicable. 
+                    </li>
+                </ol>
+
+            </li>
+        </ol>
+
+
+        <div id="reference-section" style="font-size:1.1em">
+            <h2 class="no-ref">References</h2>
+            <div id="references"></div>
+        </div>
+    </body>
+</html>

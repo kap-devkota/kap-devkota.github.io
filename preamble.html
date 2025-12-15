@@ -68,17 +68,18 @@
             // -------------------------
             // 3. If no citations → hide the entire section
             // -------------------------
-            if (citationCount === 0) {
-                refSection.style.display = "none";
-                return;
-            }
+            // if (citationCount === 0) {
+            //     refSection.style.display = "none";
+            //     return;
+            // }
 
             // -------------------------
             // 4. Build bibliography section
             // -------------------------
             for (const key in refNumbers) {
                 const n = refNumbers[key];
-                const li = document.createElement("li");
+                console.log(bib[key])
+                const li = document.createElement("p");
                 li.innerHTML = `<span>[${n}]</span> ${bib[key]}`;
                 refList.appendChild(li);
             }
@@ -131,6 +132,11 @@
                 content: counter(heading) "." counter(subheading) " ";
                 counter-increment: subheading;
             }
+
+            h2.no-ref::before {
+               counter-increment: none;
+               content: "";
+            }
         </style>
 
         <script type="text/javascript" id="MathJax-script" async
@@ -139,11 +145,11 @@
     </head>
 
     <body>  
+A biological insight <cite key="abc"></cite>
 
-
-        <div id="reference-section">
-            <h2>References</h2>
-            <ol id="references"></ol>
+        <div id="reference-section" style="font-size:1.1em">
+            <h2 class="no-ref">References</h2>
+            <div id="references"></div>
         </div>
     </body>
 </html>
