@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Align your flow </title>
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+        <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+        window.MathJax = {
+            tex: {
+            tags: 'ams',
+            inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+            displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+
+            macros: {
+                Rb: "\\mathbb{R}",
+                gf: "\\mathfrak{g}",
+                su: "\\mathfrak{su}",
+                sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+                Ac: "\\mathcal{A}",
+                Eb: "\\mathbb{E}",
+                Lc: "\\mathcal{L}"
+            }
+            },
+            options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const refSection = document.getElementById("reference-section");
+            const refList = document.getElementById("references");
+
+            let bib = null;
+
+            // -------------------------
+            // 1. Try loading bibliography.json
+            // -------------------------
+            try {
+                const response = await fetch("bibliography.json");
+                if (!response.ok) throw new Error("File not found");
+                bib = await response.json();
+            } catch (err) {
+                // If file missing → hide section entirely
+                refSection.style.display = "none";
+                return;
+            }
+
+            // -------------------------
+            // 2. Process citations
+            // -------------------------
+            let counter = 1;
+            const refNumbers = {};
+            let citationCount = 0;
+
+            document.querySelectorAll("cite").forEach(c => {
+                const key = c.getAttribute("key");
+
+                // If this key not in bibliography → skip it quietly
+                if (!bib || !(key in bib)) {
+                    c.innerHTML = "[?]";
+                    return;
+                }
+
+                citationCount++;
+                if (!(key in refNumbers)) refNumbers[key] = counter++;
+                c.innerHTML = `[${refNumbers[key]}]`;
+                c.dataset.ref = key;
+            });
+
+            // -------------------------
+            // 3. If no citations → hide the entire section
+            // -------------------------
+            // if (citationCount === 0) {
+            //     refSection.style.display = "none";
+            //     return;
+            // }
+
+            // -------------------------
+            // 4. Build bibliography section
+            // -------------------------
+            for (const key in refNumbers) {
+                const n = refNumbers[key];
+                console.log(bib[key])
+                const li = document.createElement("p");
+                li.innerHTML = `<span>[${n}]</span> ${bib[key]}`;
+                refList.appendChild(li);
+            }
+
+            // Section stays visible only if citations exist
+            });
+        </script>
+
+        <style>
+            lemma {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            lemma:before {
+                counter-increment: equation;
+                content: "Lemma " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            theorem {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            theorem:before {
+                counter-increment: equation;
+                content: "Theorem " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            body {
+                counter-reset: heading equation;
+                font-family: 'Poppins', sans-serif;
+            } 
+
+            h2:before {
+                counter-increment: heading;
+                content: counter(heading) " ";
+                counter-reset: subheading equation;
+            }
+
+            h3:before {
+                content: counter(heading) "." counter(subheading) " ";
+                counter-increment: subheading;
+            }
+
+            h2.no-ref::before {
+               counter-increment: none;
+               content: "";
+            }
+        </style>
+
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+        </script>
+    </head>
+
+    <body>  
+        <h1>Align Your Flow: Scaling Continuous-Time Flow Map Distillation</h1>
+
+        <ol>
+            <li>
+                Main challenge is to reduce the steps required in flow matching inference while incurring a minimal sampling degradation.
+            </li>
+            <li>
+                <span style="font-size: 1.1em;"><strong>Consistency models</strong></span> Previous models applied a consistency paradigm to solve flow trajectories with minimal steps. First, a full-fledged flow model is trained on the dataset. Then a consistency model is trained to distill the abilities of the earlier flow model, through following steps:
+                 <ol type="a">
+                    <li>
+                        Let $f_\theta(x_t, t)$ be a consistency model that predicts the clean sample $x_0 \sim p_{data}$ directly from $x_t$. 
+                    </li>
+                    <li>
+                        Define a consistency objective
+                        \begin{align}
+                            \Lc_{consistency} = \Eb_{x_t, t}[w(t) d(f_\theta(x_t, t), f_{\theta^{-}}(x_{t-\Delta t}, t-\Delta t))] \label{consit:discrete}
+                        \end{align}
+                        <p>
+                            Basically, $f_{\theta^-}$ is the output acquired at the timestep $t-\Delta t$ using the pre-trained flow matching model. What the loss enforces is the invariance between the output generated by the consistency model $f_\theta(x_t, t)$ and the flow model $f_{\theta^-}(x_{t-\Delta t}, t-\Delta t)$ at discrete timesteps. The "$-$" sign in the flow output indicates gradient stopping, preventing the gradients to pass through the teacher flow model.
+                        </p>
+                    </li>
+                    <li>
+                        In the continuous case, if the distance metric $d$ is a simple L2 distance, \ref{consit:discrete} becomes
+                        \begin{align}
+                             \Lc_{consistency} &=  \Eb_{x_t, t}[w(t) \|f_\theta(x_t, t)- f_{\theta^{-}}(x_{t-\delta t}, t-\delta t)\|^2] \\
+                             \nabla_\theta \Lc_{consistency} &= \Eb_{x_t, t}[w(t) \|f_\theta(x_t, t) - f_{\theta^{-}}(x_{t-\delta t}, t-\delta t)\|^2] \\
+                             &= \Eb_{x_t, t}[w(t) (\nabla_\theta (f_\theta(x_t, t)^T f_\theta(x_t, t) - 2 f_{\theta^{-}}(x_{t-\delta t}, t-\delta t)\|^2] 
+                        \end{align}
+                    </li>
+                 </ol>
+            </li>
+
+        </ol>
+
+        <div id="reference-section" style="font-size:1.1em">
+            <h2 class="no-ref">References</h2>
+            <div id="references"></div>
+        </div>
+    </body>
+</html>
