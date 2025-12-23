@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Energy loss functions </title>
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+        <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+        window.MathJax = {
+            tex: {
+            tags: 'ams',
+            inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+            displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+
+            macros: {
+                Rb: "\\mathbb{R}",
+                gf: "\\mathfrak{g}",
+                su: "\\mathfrak{su}",
+                sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+                Ac: "\\mathcal{A}",
+                Eb: "\\mathbb{E}"
+            }
+            },
+            options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const refSection = document.getElementById("reference-section");
+            const refList = document.getElementById("references");
+
+            let bib = null;
+
+            // -------------------------
+            // 1. Try loading bibliography.json
+            // -------------------------
+            try {
+                const response = await fetch("bibliography.json");
+                if (!response.ok) throw new Error("File not found");
+                bib = await response.json();
+            } catch (err) {
+                // If file missing → hide section entirely
+                refSection.style.display = "none";
+                return;
+            }
+
+            // -------------------------
+            // 2. Process citations
+            // -------------------------
+            let counter = 1;
+            const refNumbers = {};
+            let citationCount = 0;
+
+            document.querySelectorAll("cite").forEach(c => {
+                const key = c.getAttribute("key");
+
+                // If this key not in bibliography → skip it quietly
+                if (!bib || !(key in bib)) {
+                    c.innerHTML = "[?]";
+                    return;
+                }
+
+                citationCount++;
+                if (!(key in refNumbers)) refNumbers[key] = counter++;
+                c.innerHTML = `[${refNumbers[key]}]`;
+                c.dataset.ref = key;
+            });
+
+            // -------------------------
+            // 3. If no citations → hide the entire section
+            // -------------------------
+            // if (citationCount === 0) {
+            //     refSection.style.display = "none";
+            //     return;
+            // }
+
+            // -------------------------
+            // 4. Build bibliography section
+            // -------------------------
+            for (const key in refNumbers) {
+                const n = refNumbers[key];
+                console.log(bib[key])
+                const li = document.createElement("p");
+                li.innerHTML = `<span>[${n}]</span> ${bib[key]}`;
+                refList.appendChild(li);
+            }
+
+            // Section stays visible only if citations exist
+            });
+        </script>
+
+        <style>
+            lemma {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            lemma:before {
+                counter-increment: equation;
+                content: "Lemma " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            theorem {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            theorem:before {
+                counter-increment: equation;
+                content: "Theorem " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            body {
+                counter-reset: heading equation;
+                font-family: 'Poppins', sans-serif;
+            } 
+
+            h2:before {
+                counter-increment: heading;
+                content: counter(heading) " ";
+                counter-reset: subheading equation;
+            }
+
+            h3:before {
+                content: counter(heading) "." counter(subheading) " ";
+                counter-increment: subheading;
+            }
+
+            h2.no-ref::before {
+               counter-increment: none;
+               content: "";
+            }
+        </style>
+
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+        </script>
+    </head>
+
+    <body>  
+        <h2>Notes</h2>
+
+        <ol>
+            <li>
+                <strong style="font-size: 1.1em;">Objective</strong>
+                <ol type="a">
+                    <li>
+                        While using a deep model for learning a particular system, existing approaches use standard loss terms (like Categorical crossentropy and MSE losses) to train the model. 
+                    </li>
+                    <li>
+                        These losses don't properly capture system specific properties, do not leverage on known systemic information while training the model, and even worse, make the model unable to distinguish completely degenerate outputs. 
+                    </li>
+                    <li>
+                        The paper talks about reimagining the training objectives as a problem specific energy minimization, how this help address all the concerns outlined in (b).
+                    </li>
+                </ol>
+            </li>
+
+            <li> <strong type="font-size: 1.1em;">Background</strong>
+                <ol type="a">
+                    <li>
+                        Given samples $\{(x_i, y_i)\}_{i=1}^N$ observed from the distribution $\mathcal{D}$, a discrete approximation of the distribution probability can be given by
+                        \begin{align}
+                            p(x, y) = \frac{1}{N}\sum_{i=1}^N \delta(x-x_i) p(y|y_i) 
+                        \end{align}
+                        Similarly, the probabilistic formulation of outputs from a deterministic model $f_\theta(x)$ can be specified as 
+                        \begin{align}
+                            q(x, y) = \frac{1}{N} \sum_{i=1}^N \delta(x-x_i) \delta(f_\theta(x_i) - y)
+                        \end{align} 
+
+                        To map the model output so that it matches the discrete approximation $p(x, y)$, the authors use a reverse KL objective 
+                        \begin{align}
+                            D_{KL} (q\|p) = \Eb_{(x, y) \in q}\left[\log q(x, y) - \log p(x, y)\right] = \sum_{i} p(f(x_i)| y_i) \label{rev_kl}
+                        \end{align}
+                    </li>
+                    <li>
+                        Thus, if $p$ is described by an energy function: 
+                        \begin{align}
+                            p(\hat{y} | y) &= \frac{\exp(-E(\hat{y}, y)/T)}{Z(y, T)} 
+                        \end{align} 
+                        We can plug this formulation to \ref{rev_kl} resulting in 
+                        \begin{align}
+                            J(\theta) = \sum_i^N \left(E(\hat{y}_\theta^i, y_i)/T + \log Z(y_i, T)\right) 
+                        \end{align}
+                    </li>
+                </ol>
+            </li>
+
+                $\newcommand{bm}[1]{\mathbf{#1}}$
+
+            <li> <strong style="font-size: 1.1em;">Properties of a good energy function</strong>
+                <ol type="a">
+                    <li>
+                        Should be fast
+                    </li>
+                    <li>
+                        Should characterize the system appropriately, though it does not need to align exactly with the actual energy function as they may be highly rugged.
+                    </li>
+                    <li>
+                        Should have a good continuity/stability properties (no sudden discontinuities). Should be bounded as well. 
+                    </li>
+                </ol>
+            </li>
+
+            <li>
+                <strong style="font-size: 1.1em;">Energy for atomistic systems</strong> Given true and predicted atomic system $\{y_i\}$ and $\{\hat{y}_i\}$ respectively, the energy function should be 
+                
+                \begin{align}
+                    E(\hat{y}, y) = \sum^{n}_{i,j} \frac{1}{2}k_{ij}(y) (\|y_i - y_j\| - \|\hat{y}_i - \hat{y}_j\|)^2 
+                \end{align} 
+                This loss tries to model the relative distances between points in an atomic system than aligning individual points in the source to its ground truth positions. 
+            </li>
+
+            <li>
+                <strong style="font-size: 1.1em;">Invariance and symmetries</strong> Each system have their own symmetries, which the energy function should respect. Suppose there is a group action $G$ which does not affect the system's energy (i.e. the application of rotation or translation in an atomic system). The loss function $\mathcal{L}$ should be such that 
+                \begin{align}
+                    \mathcal{L}(g \cdot \mathbf{y}, \mathbf{\hat{y}}) =\mathcal{L}(\mathbf{y}, g \cdot \mathbf{\hat{y}}) = \mathcal{L}(\mathbf{y}, \mathbf{\hat{y}})  
+                \end{align}
+            </li>
+
+            <li>
+                <strong>Distance-based loss function in diffusion models</strong>
+                It was specified earlier for atomic systems that the distance matrix $d(\mathbf{x}) = \Rb^{n\times n}$ is invariant to the $SE(3)$ group action. Thus, The lie generator of the $SE(3)$ is orthogonal to $\nabla_{\mathbf{x}} d(\mathbf{x})$. Assume a random process specifying an atomic system described by a SDE: 
+
+                \begin{align}
+                 d\bm{x}_t = \sigma_t dW_t 
+                \end{align}
+                The reverse process is governed by the formulation (see <a href="../../../mathematics/tiny-proofs/forward-backward.equation.html">here</a> for more detail): 
+                \begin{align}
+                    d\bm{y_{t}} = - \sigma_t \nabla \log p_t(\bm{y_t}) dt + \sigma_t dW_t 
+                \end{align}
+                Given this reverse proces, the goal is to make the model output approximate this score function $p(\bm{x_t})$. 
+
+            </li>
+        </ol>
+
+        <div id="reference-section" style="font-size:1.1em">
+            <h2 class="no-ref">References</h2>
+            <div id="references"></div>
+        </div>
+    </body>
+</html>

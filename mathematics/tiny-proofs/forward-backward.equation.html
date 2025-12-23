@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Approximating the score function $\nabla p_t(x)$ </title>
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+        <script src= "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+        window.MathJax = {
+            tex: {
+            tags: 'ams',
+            inlineMath: [['$', '$'], ['\\(', '\\)']], // enable $...$ for inline
+            displayMath: [['$$', '$$'], ['\\[', '\\]']], // block math
+
+            macros: {
+                Rb: "\\mathbb{R}",
+                gf: "\\mathfrak{g}",
+                su: "\\mathfrak{su}",
+                sl: "\\mathfrak{sl}(2, \\mathbb{C})",
+                Ac: "\\mathcal{A}"
+            }
+            },
+            options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const refSection = document.getElementById("reference-section");
+            const refList = document.getElementById("references");
+
+            let bib = null;
+
+            // -------------------------
+            // 1. Try loading bibliography.json
+            // -------------------------
+            try {
+                const response = await fetch("bibliography.json");
+                if (!response.ok) throw new Error("File not found");
+                bib = await response.json();
+            } catch (err) {
+                // If file missing → hide section entirely
+                refSection.style.display = "none";
+                return;
+            }
+
+            // -------------------------
+            // 2. Process citations
+            // -------------------------
+            let counter = 1;
+            const refNumbers = {};
+            let citationCount = 0;
+
+            document.querySelectorAll("cite").forEach(c => {
+                const key = c.getAttribute("key");
+
+                // If this key not in bibliography → skip it quietly
+                if (!bib || !(key in bib)) {
+                    c.innerHTML = "[?]";
+                    return;
+                }
+
+                citationCount++;
+                if (!(key in refNumbers)) refNumbers[key] = counter++;
+                c.innerHTML = `[${refNumbers[key]}]`;
+                c.dataset.ref = key;
+            });
+
+            // -------------------------
+            // 3. If no citations → hide the entire section
+            // -------------------------
+            // if (citationCount === 0) {
+            //     refSection.style.display = "none";
+            //     return;
+            // }
+
+            // -------------------------
+            // 4. Build bibliography section
+            // -------------------------
+            for (const key in refNumbers) {
+                const n = refNumbers[key];
+                console.log(bib[key])
+                const li = document.createElement("p");
+                li.innerHTML = `<span>[${n}]</span> ${bib[key]}`;
+                refList.appendChild(li);
+            }
+
+            // Section stays visible only if citations exist
+            });
+        </script>
+
+        <style>
+            lemma {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            lemma:before {
+                counter-increment: equation;
+                content: "Lemma " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            theorem {
+                display: block;            /* behaves like <h3> */
+                margin-top: 1em;           /* space before, like a line break */
+                font-weight: bold;         /* match heading style */
+                font-size: 1.1em;         /* approx h3 size (browser default) */
+            }
+
+        /* Define how lemma is displayed anywhere you use <lemma> */
+            theorem:before {
+                counter-increment: equation;
+                content: "Theorem " counter(heading) "." counter(equation) ": ";
+                font-weight: bold;
+            }
+
+            body {
+                counter-reset: heading equation;
+                font-family: 'Poppins', sans-serif;
+            } 
+
+            h2:before {
+                counter-increment: heading;
+                content: counter(heading) " ";
+                counter-reset: subheading equation;
+            }
+
+            h3:before {
+                content: counter(heading) "." counter(subheading) " ";
+                counter-increment: subheading;
+            }
+
+            h2.no-ref::before {
+               counter-increment: none;
+               content: "";
+            }
+        </style>
+
+        <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+        </script>
+    </head>
+
+    <body>  
+        $\newcommand{bm}[1]{\mathbf{#1}}$
+        <h2>Approximating $\nabla \log p(\bm{x})$ during the training of a score-matching model</h2>
+
+        Given a forward stochastic process governed by the equation 
+        \begin{align}
+            d\bm{x_t} = f_t(\bm{x_t}) dt + g_t(\bm{x_t}) dW_t  \label{forward}
+        \end{align}
+        <p>
+        The equivalent fokker-plank equation can be written as 
+        \begin{align}
+            \frac{d p_t}{dt} &= -\nabla (f_tp_t) + 1/2 \nabla \cdot \nabla: b_t p_t 
+        \end{align}
+        Where $b_t= g_tg_t^T$ and the operator $\nabla \cdot \nabla: B = \sum_{i,j} \partial_i \partial_j B^{(ij)}$
+        </p>
+        $\newcommand{yb}[1]{\mathbf{y}_{#1}}$
+        <p>
+        If $g_t=\sigma_t I, b=g_t^2$ The reverse process of eq. \ref{forward} becomes:
+        \begin{align}
+            d\bm{y_t} &= (f_t -  1/p_t\nabla (g_t^2 p_t))dt + g_t d\bar{W}_t \\
+            &= (f_t - \nabla g_t^2 - g_t^2 \nabla \log p_t) dt + g_t d\bar{W}_t \\
+            \therefore d\bm{y_t} &= (f_t(\bm{y_t}) -\nabla (g_t(\bm{y_t})^2) - g_t(\bm{y_t})^2 \nabla \log p_t(\bm{y_t})) \nonumber \\ 
+            &\quad + g_t(\bm{y_t})d\bar{W}_t
+        \end{align}
+        Where $\bar{W}_t = W_{T-t}$ and integration is done in reverse $T \rightarrow 0$.
+        In other words, the Euler approximation at $t-h$ becomes
+        \begin{align}
+            \yb{t-h} &= \yb{t} +  (f_t(\bm{y_t}) -\nabla (g_t(\bm{y_t})^2) - g_t(\bm{y_t})^2 \nabla \log p_t(\bm{y_t})) h\nonumber \\ 
+            &\quad + g_t(\yb{t}) \sqrt{h} \epsilon
+        \end{align}
+        </p>
+
+        <h3>Special case, $f_t=0, \nabla g_t=0$</h3>
+In this case, $g_t$ is solely the function of $t$. In this context, the reverse SDE becomes 
+\begin{align}
+    d\yb{t} = -g_t^2 \nabla \log p_t(y_t) + g_t(y_t)d\bar{W}_t
+\end{align}
+Thus, the forward process could be denoised by learning the score function $\nabla \log p_t(y_t)$. Let us construct a score function $s_\theta$ that approximates $\log p_t(y_t)$. Then
+$\newcommand{Eb}{\mathbb{E}}$
+\begin{align}
+        \mathcal{L} = \Eb_{y_t \sim p_t, t \sim \mathcal{U}(0,1)}[\|s_\theta(y_t, t) - \nabla \log p_t \|_2^2] \rightarrow 0 \label{err}
+\end{align}
+Expanding on the left side, we get: 
+\begin{align} 
+\Eb_{\yb{t} \sim p_t}[\|s_\theta(\yb{t}, t) - \nabla \log p_t \|_2^2] &= \int_{\yb{t}} p_t  \|s_\theta\|^2 d\yb{t} - \int 2p_t s_\theta\cdot \nabla\log p_t d\yb{t} + \text{terms invariant to } \theta \\
+&= \int_{\yb{t}} p_t  \|s_\theta\|^2 d\yb{t} - \int 2s_\theta\cdot \nabla p_t d\yb{t} + \ldots \\
+&= \int_{\yb{t}} p_t  \|s_\theta\|^2 d\yb{t} + \int 2\nabla\cdot s_\theta  p_t d\yb{t} + 0 + \ldots &\text{boundary cond.}\\ 
+&= \Eb_{\yb{t} \sim p_t}[\|s_\theta\|^2 + 2\nabla \cdot s_\theta] \label{eq:r1}
+\end{align}
+The computation of divergence term in eq \ref{eq:r1} is still untenable in many cases. Thus, to further simplify the loss term, we can directly solve for $\nabla \log p_t$ under certain conditions
+We know that, as $x_t = x_0 + \sigma_t \epsilon, \epsilon \sim \mathcal{N}(0, 1)$ 
+$\newcommand{\xb}{\mathbf{x}}$
+\begin{align}
+    p_t &= p_0 \otimes \mathcal{N}(0, \sigma_t^2) \\
+    p_t(\xb_t) &= -\int_\xb p_0(\xb) \mathcal{N}(\xb_t|\xb, \sigma_t^2) d\xb \\
+    \nabla p_t &= -\int_x p_0(\xb) \mathcal{N}(\xb_t|\xb, \sigma_t^2) (\xb_t - \xb)/\sigma_t^2 d\xb \\
+    &= -\frac{1}{\sigma_t}\int_x p_0(x) \mathcal{N}(x_t|x, \sigma_t^2) \epsilon d\xb  \\
+    &= -\frac{1}{\sigma_t} \int_x p_t(x_t) p(x|x_t) \epsilon d\xb &\text{Baye's rule} \\
+    \therefore \nabla \log p_t &= -\frac{1}{\sigma_t} \Eb[\epsilon | x_t] \label{fin}
+\end{align}
+
+Applying \ref{fin} to \ref{err}, we obtain the following 
+\begin{align}
+\mathcal{L} = \Eb_{y_t\sim p_t, t\sim \mathcal{U}(0,1)}[\|s_\theta(x_t, t) + \epsilon / \sigma_t^2 \|] \label{fin:2}
+\end{align}
+
+eq. \ref{fin:2}, which is referred to in the literature as Denoising Scoring Matching (DSM), is generally used to train a score matching model. 
+
+        <div id="reference-section" style="font-size:1.1em">
+            <h2 class="no-ref">References</h2>
+            <div id="references"></div>
+        </div>
+    </body>
+</html>
